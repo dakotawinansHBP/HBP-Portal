@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Builders Plus — Project Management</title>
+<style>
+:root{--bg:#f4f3ef;--sur:#fff;--sur2:#f0efe9;--brd:#e2e0d8;--brd2:#ccc9be;--tx:#1a1916;--tx2:#6b6860;--tx3:#9b9890;--ac:#1a4d7c;--acl:#e8f0f8;--gr:#2d6a3f;--grl:#e8f5ec;--am:#7a5200;--aml:#fef8e8;--rd:#8a2020;--rdl:#fdf0f0;--or:#b54000;--orl:#fef0e8;--rad:8px;--rad2:12px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);--shm:0 4px 16px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+/* LOGIN */
+#ls{position:fixed;inset:0;background:var(--ac);display:flex;align-items:center;justify-content:center;z-index:9999}
+.lc{background:#fff;border-radius:var(--rad2);padding:48px 40px;width:360px;box-shadow:var(--shm)}
+.ll{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--tx3);margin-bottom:6px}
+.lt{font-size:22px;color:var(--tx);margin-bottom:32px;font-family:Georgia,serif;font-style:italic}
+.lf{margin-bottom:14px}
+.lf label{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tx2);margin-bottom:5px}
+.lf input{width:100%;padding:10px 12px;border:1px solid var(--brd2);border-radius:var(--rad);font-size:14px}
+.lf input:focus{outline:none;border-color:var(--ac)}
+.lb{width:100%;padding:11px;background:var(--ac);color:#fff;border:none;border-radius:var(--rad);font-size:14px;cursor:pointer;margin-top:6px;letter-spacing:.02em}
+.lb:hover{background:#153f68}
+.le{color:var(--rd);font-size:13px;margin-top:10px;display:none}
+/* LAYOUT */
+#app{display:block}
+.layout{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sb{width:210px;min-width:210px;background:var(--ac);display:flex;flex-direction:column;overflow-y:auto}
+.sb-top{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-co{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:3px}
+.sb-ti{font-size:16px;color:#fff;font-family:Georgia,serif;font-style:italic}
+.sb-us{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px}
+.sb-nav{flex:1;padding:8px 0}
+.sb-sec{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:12px 16px 4px}
+.si{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:13px;cursor:pointer;color:rgba(255,255,255,.65);border-left:2px solid transparent;transition:all .12s}
+.si:hover{color:#fff;background:rgba(255,255,255,.07)}
+.si.active{color:#fff;border-left-color:#fff;background:rgba(255,255,255,.12);font-weight:500}
+.si svg{width:15px;height:15px;flex-shrink:0}
+.sb-bot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.sb-bot button{width:100%;padding:8px;background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:var(--rad);color:rgba(255,255,255,.55);font-size:12px;cursor:pointer}
+.sb-bot button:hover{background:rgba(255,255,255,.08);color:#fff}
+/* MAIN */
+.main{flex:1;overflow-y:auto}
+.pg{display:none;padding:26px 30px;min-height:100%}
+.pg.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.pt{font-size:21px;color:var(--tx);font-family:Georgia,serif;font-style:italic}
+.ps{font-size:13px;color:var(--tx2);margin-top:2px}
+/* CARDS */
+.card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad2);padding:18px 20px;margin-bottom:14px;box-shadow:var(--sh)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* STATS */
+.stat{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad2);padding:16px 18px;box-shadow:var(--sh)}
+.sl{font-size:11px;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.sv{font-size:24px;color:var(--tx)}
+.sv.blue{color:var(--ac)}.sv.green{color:var(--gr)}.sv.amber{color:var(--am)}.sv.red{color:var(--rd)}
+.ss{font-size:12px;color:var(--tx3);margin-top:3px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;font-size:13px;border-radius:var(--rad);cursor:pointer;border:1px solid var(--brd2);background:var(--sur);color:var(--tx);transition:all .12s;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--sur2)}
+.btn-p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.btn-p:hover{background:#153f68}
+.btn-g{background:var(--grl);color:var(--gr);border-color:#b8dfc4}
+.btn-r{background:var(--rdl);color:var(--rd);border-color:#f0c0c0}
+.btn-sm{padding:4px 9px;font-size:12px}
+.br{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.fd{display:flex;flex-direction:column;gap:4px}
+.fd.full{grid-column:1/-1}
+.fd label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tx2)}
+.fd input,.fd select,.fd textarea{padding:7px 10px;border:1px solid var(--brd2);border-radius:var(--rad);font-size:13px;font-family:inherit;color:var(--tx);background:var(--sur)}
+.fd textarea{resize:vertical;min-height:68px}
+.fd input:focus,.fd select:focus,.fd textarea:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px rgba(26,77,124,.1)}
+/* TABLES */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tx2);padding:9px 11px;border-bottom:1px solid var(--brd);white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid var(--brd);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--sur2)}
+.tfoot td{font-weight:600;background:var(--sur2);border-top:1px solid var(--brd);border-bottom:none}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.b-bl{background:var(--acl);color:var(--ac)}
+.b-gr{background:var(--grl);color:var(--gr)}
+.b-am{background:var(--aml);color:var(--am)}
+.b-rd{background:var(--rdl);color:var(--rd)}
+.b-gy{background:var(--sur2);color:var(--tx2)}
+.b-or{background:var(--orl);color:var(--or)}
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--brd);margin-bottom:18px}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s}
+.tab:hover{color:var(--tx)}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac);font-weight:500}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:500;padding:20px}
+.mo.open{display:flex}
+.md{background:var(--sur);border-radius:var(--rad2);padding:26px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:var(--shm)}
+.md.lg{max-width:720px}
+.md-ti{font-size:17px;margin-bottom:18px;font-family:Georgia,serif;font-style:italic}
+.md-ft{display:flex;justify-content:flex-end;gap:8px;margin-top:22px;padding-top:14px;border-top:1px solid var(--brd)}
+/* PROGRESS */
+.pb{height:5px;background:var(--sur2);border-radius:3px;overflow:hidden}
+.pf{height:100%;background:var(--ac);border-radius:3px;transition:width .3s}
+.pf.gr{background:var(--gr)}.pf.am{background:#c4920a}.pf.rd{background:var(--rd)}
+/* GANTT */
+.gw{overflow-x:auto}
+.gr-row{display:flex;align-items:center;border-bottom:1px solid var(--brd);min-height:38px}
+.gr-lbl{width:170px;min-width:170px;font-size:12px;padding:7px 11px;border-right:1px solid var(--brd);color:var(--tx)}
+.gr-tr{flex:1;position:relative;height:38px}
+.gr-bar{position:absolute;top:7px;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 7px;font-size:11px;font-weight:600;color:#fff;overflow:hidden;white-space:nowrap}
+.gh{display:flex;border-bottom:2px solid var(--brd);background:var(--sur2)}
+.gh-lbl{width:170px;min-width:170px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:7px 11px;color:var(--tx2);border-right:1px solid var(--brd)}
+.gh-mo{flex:1;display:flex}
+.gm{flex:1;font-size:10px;font-weight:700;text-align:center;padding:7px 2px;color:var(--tx2);border-right:1px solid var(--brd)}
+/* CALENDAR */
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--brd);border:1px solid var(--brd);border-radius:var(--rad);overflow:hidden}
+.chdr{background:var(--sur2);font-size:11px;font-weight:700;text-align:center;padding:7px 3px;color:var(--tx2)}
+.cday{background:var(--sur);min-height:76px;padding:5px}
+.cday.om{background:var(--sur2)}
+.cday.td{background:var(--acl)}
+.cdt{font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:3px}
+.cdt.tn{color:var(--ac)}
+.cev{font-size:10px;background:var(--ac);color:#fff;border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cev.gr{background:var(--gr)}.cev.am{background:#c4920a}.cev.rd{background:var(--rd)}
+/* PUNCH */
+.pi{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid var(--brd)}
+.pi:last-child{border-bottom:none}
+.pck{width:18px;height:18px;border:2px solid var(--brd2);border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pck.dn{background:var(--gr);border-color:var(--gr)}
+.pt2{flex:1}
+.ptit{font-size:13px}
+.ptit.dn{text-decoration:line-through;color:var(--tx3)}
+.pmt{font-size:11px;color:var(--tx3);margin-top:2px}
+/* CRM TIMELINE */
+.tli{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--brd)}
+.tlic{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700}
+.tlb{flex:1}
+.tlt{font-size:13px;font-weight:500}
+.tld{font-size:12px;color:var(--tx2);margin-top:2px}
+.tldate{font-size:11px;color:var(--tx3);white-space:nowrap}
+/* MISC */
+.es{text-align:center;padding:44px 20px;color:var(--tx3)}
+.es-i{font-size:28px;margin-bottom:10px;opacity:.4}
+.dv{border:none;border-top:1px solid var(--brd);margin:18px 0}
+.ii{padding:5px 8px;border:1px solid var(--brd2);border-radius:5px;font-size:13px;font-family:inherit;color:var(--tx)}
+.ii:focus{outline:none;border-color:var(--ac)}
+</style>
+</head>
+<body>
+
+<!-- APP SHELL -->
+<div id="app">
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sb">
+    <div class="sb-top">
+      <div class="sb-co">Home Builders Plus</div>
+      <div class="sb-ti">Project Hub</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Overview</div>
+      <div class="si active" onclick="nav('dashboard')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard
+      </div>
+      <div class="sb-sec">Projects</div>
+      <div class="si" onclick="nav('projects')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13V5l6-3 6 3v8"/><rect x="6" y="9" width="4" height="4"/></svg>All Projects
+      </div>
+      <div class="si" onclick="nav('estimate')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg>Estimating
+      </div>
+      <div class="si" onclick="nav('schedule')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/></svg>Schedule
+      </div>
+      <div class="si" onclick="nav('tracker')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-6"/></svg>Cost Tracker
+      </div>
+      <div class="si" onclick="nav('punch')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>Punch Lists
+      </div>
+      <div class="sb-sec">Clients</div>
+      <div class="si" onclick="nav('crm')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>CRM
+      </div>
+      <div class="si" onclick="nav('changeorders')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h8M4 5h8M4 11h5"/><rect x="1" y="2" width="14" height="12" rx="1.5"/></svg>Change Orders
+      </div>
+      <div class="sb-sec">Admin</div>
+      <div class="si" onclick="nav('proposals')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/></svg>Proposals
+      </div>
+      <div class="si" onclick="nav('invoices')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="8" y2="9"/></svg>Invoices
+      </div>
+      <div class="si" onclick="nav('subs')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.2 1.8-4 4-4s4 1.8 4 4"/><path d="M9 11c.6-.6 1.3-1 2-1 2.2 0 4 1.8 4 4"/></svg>Subcontractors
+      </div>
+      <div class="si" onclick="nav('rates')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>Price Rates
+      </div>
+      <div class="si" onclick="nav('settings')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3"/></svg>Settings
+      </div>
+    </div>
+    <div id="sync-badge" style="padding:0 16px 8px;font-size:11px;color:#ff9800;font-family:-apple-system,sans-serif">● Offline</div><div class="sb-bot"><button onclick="nav('settings')">⚙ Settings</button></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="pg active" id="pg-dashboard">
+      <div class="ph">
+        <div><div class="pt">Dashboard</div><div class="ps">Company-wide overview</div></div>
+        <button class="btn btn-p" onclick="openNewProj()">+ New Project</button>
+      </div>
+      <div class="g4" id="dash-stats" style="margin-bottom:16px"></div>
+      <div class="g2">
+        <div class="card"><div class="ch"><div class="ct">Active Projects</div></div><div id="dash-proj"></div></div>
+        <div class="card"><div class="ch"><div class="ct">Recent Activity</div></div><div id="dash-act"></div></div>
+      </div>
+      <div class="g2" style="margin-top:14px">
+        <div class="card"><div class="ch"><div class="ct">Tasks Due This Week</div></div><div id="dash-tasks"></div></div>
+        <div class="card"><div class="ch"><div class="ct">Pending Change Orders</div></div><div id="dash-cos"></div></div>
+      </div>
+    </div>
+
+    <!-- ALL PROJECTS -->
+    <div class="pg" id="pg-projects">
+      <div class="ph">
+        <div><div class="pt">All Projects</div><div class="ps">Manage every job from lead to closeout</div></div>
+        <button class="btn btn-p" onclick="openNewProj()">+ New Project</button>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <div style="display:flex;gap:8px">
+            <input class="ii" placeholder="Search..." oninput="filterProj(this.value)" style="width:200px">
+            <select class="ii" onchange="filterProjStatus(this.value)"><option value="">All Status</option><option>Lead</option><option>Bidding</option><option>Active</option><option>Punch List</option><option>Complete</option></select>
+          </div>
+        </div>
+        <div class="tw"><table><thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Value</th><th>Progress</th><th>Start</th><th>End</th><th></th></tr></thead><tbody id="proj-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ESTIMATING -->
+    <div class="pg" id="pg-estimate">
+      <div class="ph"><div><div class="pt">Estimating</div><div class="ps">Auto-calculate trade costs from square footage</div></div></div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:14px">Project Info</div>
+        <div class="fg3">
+          <div class="fd"><label>Client / Lot Name</label><input id="ec" value="New Project" oninput="calcEst()"></div>
+          <div class="fd"><label>Address</label><input id="ea" value="" oninput="calcEst()"></div>
+          <div class="fd"><label>Sewer / Septic</label><select id="esw" onchange="calcEst()"><option value="3025">Jeffersonville Sewer ($3,025)</option><option value="4400">Lewellen Conventional ($4,400)</option><option value="6500">Lewellen Flood Dose ($6,500)</option></select></div>
+        </div>
+        <div class="fg3" style="margin-top:10px">
+          <div class="fd"><label>Basement Fin. Sq Ft</label><input type="number" id="ebf" value="0" oninput="calcEst()"></div>
+          <div class="fd"><label>Basement Unfin. Sq Ft</label><input type="number" id="ebu" value="0" oninput="calcEst()"></div>
+          <div class="fd"><label>First Floor Sq Ft</label><input type="number" id="eff" value="1800" oninput="calcEst()"></div>
+          <div class="fd"><label>Second Floor Sq Ft</label><input type="number" id="esf" value="0" oninput="calcEst()"></div>
+          <div class="fd"><label>Garage Sq Ft</label><input type="number" id="eg" value="440" oninput="calcEst()"></div>
+          <div class="fd"><label>Porch Sq Ft</label><input type="number" id="ep" value="90" oninput="calcEst()"></div>
+          <div class="fd"><label>Patio Sq Ft</label><input type="number" id="eta" value="60" oninput="calcEst()"></div>
+          <div class="fd"><label>Deck Sq Ft</label><input type="number" id="edk" value="200" oninput="calcEst()"></div>
+          <div class="fd"><label>Driveway Sq Ft</label><input type="number" id="edv" value="960" oninput="calcEst()"></div>
+          <div class="fd"><label>Lot Sq Ft</label><input type="number" id="elt" value="14000" oninput="calcEst()"></div>
+          <div class="fd"><label>Property Value ($)</label><input type="number" id="ept" value="24000" oninput="calcEst()"></div>
+          <div class="fd"><label>Markup %</label><input type="number" id="emk" value="15" oninput="calcEst()"></div>
+        </div>
+      </div>
+      <div class="g4" id="est-metrics" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="ch"><div class="ct">Trade Cost Breakdown</div><div style="font-size:12px;color:var(--tx2)">Click ✎ to override any trade's calculation</div></div>
+        <table><thead><tr><th>#</th><th>Trade</th><th>Basis</th><th style="text-align:right">Estimated</th><th style="width:80px"></th></tr></thead>
+        <tbody id="est-tb"></tbody>
+        <tfoot>
+          <tr class="tfoot"><td colspan="3" style="text-align:right">Subtotal</td><td style="text-align:right" id="est-sub">—</td><td></td></tr>
+          <tr class="tfoot"><td colspan="3" style="text-align:right" id="est-mkl">+ 15% Markup</td><td style="text-align:right" id="est-mka">—</td><td></td></tr>
+          <tr class="tfoot"><td colspan="3" style="text-align:right;font-size:14px">Total Bid</td><td style="text-align:right;font-size:14px;color:var(--ac)" id="est-gr">—</td><td></td></tr>
+        </tfoot></table>
+        <div class="br">
+          <button class="btn btn-p" onclick="saveEstAsProj()">Save as New Project</button>
+          <button class="btn" onclick="nav('proposals')">Generate Proposal</button>
+          <button class="btn" onclick="if(confirm('Clear all per-trade overrides?')){tradeOverrides={};sd('tradeOverrides',tradeOverrides);calcEst();}">Clear All Overrides</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="pg" id="pg-schedule">
+      <div class="ph">
+        <div><div class="pt">Schedule</div><div class="ps">Gantt timeline, calendar, and task management</div></div>
+        <button class="btn btn-p" onclick="openAddTask()">+ Add Task</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="schedTab('gantt',this)">Gantt Timeline</div>
+        <div class="tab" onclick="schedTab('calendar',this)">Calendar</div>
+        <div class="tab" onclick="schedTab('tasks',this)">All Tasks</div>
+      </div>
+      <div id="st-gantt">
+        <div class="card">
+          <div class="ch">
+            <div class="ct">Project Timeline — <span id="gantt-yr"></span></div>
+            <select class="ii" id="gantt-pf" onchange="renderGantt()"><option value="">All Projects</option></select>
+          </div>
+          <div class="gw" id="gantt-c"></div>
+        </div>
+      </div>
+      <div id="st-calendar" style="display:none">
+        <div class="card">
+          <div class="ch">
+            <div class="ct" id="cal-lbl">Month Year</div>
+            <div style="display:flex;gap:7px"><button class="btn btn-sm" onclick="calNav(-1)">← Prev</button><button class="btn btn-sm" onclick="calNav(1)">Next →</button></div>
+          </div>
+          <div class="cg" id="cal-c"></div>
+        </div>
+      </div>
+      <div id="st-tasks" style="display:none">
+        <div class="card">
+          <div class="ch">
+            <div style="display:flex;gap:7px">
+              <select class="ii" id="tpf" onchange="renderTasks()"><option value="">All Projects</option></select>
+              <select class="ii" id="tsf" onchange="renderTasks()"><option value="">All Status</option><option>Not Started</option><option>In Progress</option><option>Complete</option></select>
+            </div>
+          </div>
+          <table><thead><tr><th>Task</th><th>Project</th><th>Phase</th><th>Assigned</th><th>Start</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="tasks-tb"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- COST TRACKER -->
+    <div class="pg" id="pg-tracker">
+      <div class="ph"><div><div class="pt">Cost Tracker</div><div class="ps">Actual vs estimated by project — edit any value inline</div></div></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="ch"><div class="ct">Select Project</div>
+          <select class="ii" id="tr-ps" onchange="renderTracker()"><option value="">-- Choose a project --</option></select>
+        </div>
+      </div>
+      <div class="g4" id="tr-metrics" style="margin-bottom:14px"></div>
+      <div class="card" id="tr-card" style="display:none">
+        <div class="ch"><div class="ct">Trade Actuals (click any value to edit)</div>
+          <div style="display:flex;gap:7px"><button class="btn btn-sm" onclick="addTrLine()">+ Add Trade Line</button></div>
+        </div>
+        <table><thead><tr><th>#</th><th>Trade</th><th>Assigned</th><th style="text-align:right">Estimated</th><th style="text-align:right">Actual</th><th style="text-align:right">Difference</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tr-tb"></tbody>
+        <tfoot><tr class="tfoot"><td colspan="3">Totals</td><td style="text-align:right" id="tr-e">—</td><td style="text-align:right" id="tr-a">—</td><td style="text-align:right" id="tr-d">—</td><td colspan="2"></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="card" id="tr-labor-card" style="display:none;margin-top:14px">
+        <div class="ch"><div class="ct">Labor &amp; Man Hours</div><button class="btn btn-sm" onclick="openAddLabor()">+ Log Hours</button></div>
+        <div class="g4" id="tr-labor-stats" style="margin-bottom:14px"></div>
+        <table><thead><tr><th>Date</th><th>Worker / Sub</th><th>Trade</th><th style="text-align:right">Hours</th><th style="text-align:right">Rate/hr</th><th style="text-align:right">Total</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="tr-labor-tb"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PUNCH LISTS -->
+    <div class="pg" id="pg-punch">
+      <div class="ph">
+        <div><div class="pt">Punch Lists</div><div class="ps">Track completion items per job</div></div>
+        <button class="btn btn-p" onclick="openAddPunch()">+ Add Item</button>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="ch"><div class="ct">Project</div>
+              <select class="ii" id="pu-ps" onchange="renderPunch()"><option value="">-- Select Project --</option></select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div class="ct">Items</div><div id="pu-prog-lbl" style="font-size:13px;color:var(--tx2)"></div></div>
+            <div class="pb" style="margin-bottom:14px"><div class="pf gr" id="pu-pb" style="width:0%"></div></div>
+            <div id="punch-list"></div>
+          </div>
+        </div>
+        <div class="card"><div class="ch"><div class="ct">By Category</div></div><div id="punch-cats"></div></div>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="pg" id="pg-crm">
+      <div class="ph">
+        <div><div class="pt">CRM</div><div class="ps">Clients, leads, communications &amp; complaints</div></div>
+        <button class="btn btn-p" onclick="openAddContact()">+ New Contact</button>
+      </div>
+      <div style="display:flex;gap:14px">
+        <div style="width:260px;flex-shrink:0">
+          <div class="card" style="margin-bottom:10px"><input class="ii" style="width:100%" placeholder="Search clients..." oninput="filterContacts(this.value)"></div>
+          <div id="contact-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div style="flex:1" id="contact-detail">
+          <div class="es"><div class="es-i">👤</div><div>Select a client to view details</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANGE ORDERS -->
+    <div class="pg" id="pg-changeorders">
+      <div class="ph">
+        <div><div class="pt">Change Orders</div><div class="ps">Track client-requested changes and cost impacts</div></div>
+        <button class="btn btn-p" onclick="openAddCO()">+ New Change Order</button>
+      </div>
+      <div class="card">
+        <div class="ch"><select class="ii" id="co-pf" onchange="renderCOs()"><option value="">All Projects</option></select></div>
+        <table><thead><tr><th>CO #</th><th>Project</th><th>Description</th><th>By</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="co-tb"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PROPOSALS -->
+    <div class="pg" id="pg-proposals">
+      <div class="ph">
+        <div><div class="pt">Proposals</div><div class="ps">Generate and manage client proposals</div></div>
+        <button class="btn btn-p" onclick="openProposalGen()">Generate Proposal</button>
+      </div>
+      <div class="card">
+        <table><thead><tr><th>Project</th><th>Client</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="prop-tb"></tbody></table>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="pg" id="pg-invoices">
+      <div class="ph">
+        <div><div class="pt">Draw Invoices</div><div class="ps">Create and track draw requests</div></div>
+        <button class="btn btn-p" onclick="openNewInvoice()">+ New Invoice</button>
+      </div>
+      <div class="card">
+        <table><thead><tr><th>Draw #</th><th>Project</th><th>Client</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="inv-tb"></tbody></table>
+      </div>
+    </div>
+
+
+    <!-- SUBCONTRACTORS -->
+    <div class="pg" id="pg-subs">
+      <div class="ph">
+        <div><div class="pt">Subcontractors</div><div class="ps">Manage your sub roster — available in all task and punch list dropdowns</div></div>
+        <button class="btn btn-p" onclick="openAddSub()">+ Add Sub</button>
+      </div>
+      <div class="g4" id="subs-stats" style="margin-bottom:16px"></div>
+      <div class="card">
+        <div class="ch">
+          <div style="display:flex;gap:8px">
+            <input class="ii" placeholder="Search subs..." oninput="filterSubs(this.value)" style="width:200px">
+            <select class="ii" onchange="filterSubTrade(this.value)" id="sub-trade-filter">
+              <option value="">All Trades</option>
+              <option>Electrical</option><option>Plumbing</option><option>HVAC</option>
+              <option>Framing</option><option>Concrete</option><option>Roofing</option>
+              <option>Drywall</option><option>Painting</option><option>Flooring</option>
+              <option>Excavation</option><option>Landscaping</option><option>General Labor</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Name</th><th>Company</th><th>Trade</th><th>Phone</th><th>Email</th><th>Rating</th><th>Status</th><th></th></tr></thead>
+            <tbody id="subs-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RATES -->
+    <div class="pg" id="pg-rates">
+      <div class="ph">
+        <div><div class="pt">Price Rates &amp; Trades</div><div class="ps">Edit standard rates and add custom trades — estimates recalculate automatically</div></div>
+        <div style="display:flex;gap:7px"><button class="btn" onclick="openAddCustomTrade()">+ Add Custom Trade</button><button class="btn btn-p" onclick="saveRates()">Save Rates</button></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ct" style="margin-bottom:14px">Per Sq Ft Rates</div><div id="rates-psf"></div></div>
+        <div class="card"><div class="ct" style="margin-bottom:14px">Flat Fee Rates</div><div id="rates-flat"></div></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="ch"><div class="ct">Custom Trades</div><div style="font-size:12px;color:var(--tx2)">Trades you've added with assigned company info</div></div>
+        <div id="custom-trades-list"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="pg-settings">
+      <div class="ph"><div><div class="pt">Settings</div><div class="ps">Configure Google Drive integration and app preferences</div></div></div>
+      <div class="card">
+        <div class="ct" style="margin-bottom:14px">Google Drive Integration</div>
+        <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">
+          Connect Google Drive to link folders to projects/customers and upload files directly from this app.<br>
+          You'll need to create a project in <a href="https://console.cloud.google.com" target="_blank" style="color:var(--ac)">Google Cloud Console</a>, enable the Drive API, and create OAuth credentials.
+          <a href="#" onclick="alert('Steps:\n1. Go to console.cloud.google.com and create a new project\n2. Enable Google Drive API (APIs & Services > Library)\n3. Create OAuth Client ID (APIs & Services > Credentials > + Create Credentials > OAuth client ID > Web application)\n4. Add this site URL to Authorized JavaScript Origins\n5. Create an API Key (APIs & Services > Credentials > + Create Credentials > API Key)\n6. Paste the Client ID and API Key below\n7. Click Save & then Sign In');return false;" style="color:var(--ac)">Setup help →</a>
+        </div>
+        <div class="fg">
+          <div class="fd full"><label>Google OAuth Client ID</label><input id="gd-cid" placeholder="xxxxxxxx.apps.googleusercontent.com"></div>
+          <div class="fd full"><label>Google API Key</label><input id="gd-key" placeholder="AIzaSy..."></div>
+        </div>
+        <div class="br">
+          <button class="btn btn-p" onclick="saveDriveConfig()">Save Configuration</button>
+          <button class="btn" onclick="driveSignIn()" id="gd-signin-btn">Sign In with Google</button>
+          <button class="btn btn-r" onclick="driveSignOut()" id="gd-signout-btn" style="display:none">Sign Out of Drive</button>
+          <span id="gd-status" style="display:flex;align-items:center;font-size:12px;color:var(--tx2);margin-left:8px"></span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="ct" style="margin-bottom:14px">Data Management</div>
+        <div style="font-size:13px;color:var(--tx2);margin-bottom:14px">Export, import, or reset all data stored in this application.</div>
+        <div class="br">
+          <button class="btn" onclick="exportAllData()">Export All Data (JSON)</button>
+          <button class="btn" onclick="document.getElementById('imp-file').click()">Import Data</button>
+          <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importAllData(event)">
+          <button class="btn btn-r" onclick="if(confirm('This will delete ALL projects, contacts, and data. Continue?'))resetAll()">Reset All Data</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- MODALS -->
+
+<div class="mo" id="mo-sub">
+  <div class="md">
+    <div class="md-ti" id="sub-modal-ti">New Subcontractor</div>
+    <div class="fg">
+      <div class="fd"><label>First Name</label><input id="sub-fn"></div>
+      <div class="fd"><label>Last Name</label><input id="sub-ln"></div>
+      <div class="fd"><label>Company Name</label><input id="sub-co"></div>
+      <div class="fd"><label>Trade / Specialty</label>
+        <select id="sub-tr">
+          <option>Electrical</option><option>Plumbing</option><option>HVAC</option>
+          <option>Framing</option><option>Concrete</option><option>Roofing</option>
+          <option>Drywall</option><option>Painting</option><option>Flooring</option>
+          <option>Excavation</option><option>Landscaping</option><option>General Labor</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fd"><label>Phone</label><input id="sub-ph" type="tel"></div>
+      <div class="fd"><label>Email</label><input id="sub-em" type="email"></div>
+      <div class="fd"><label>License #</label><input id="sub-lic"></div>
+      <div class="fd"><label>Insurance Exp.</label><input id="sub-ins" type="date"></div>
+      <div class="fd"><label>Rating (1-5)</label>
+        <select id="sub-rt"><option value="5">★★★★★ Excellent</option><option value="4">★★★★ Good</option><option value="3">★★★ Average</option><option value="2">★★ Below Average</option><option value="1">★ Poor</option></select>
+      </div>
+      <div class="fd"><label>Status</label>
+        <select id="sub-st"><option>Active</option><option>Inactive</option><option>Do Not Use</option></select>
+      </div>
+      <div class="fd full"><label>Notes</label><textarea id="sub-no" rows="3"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-sub')">Cancel</button>
+      <button class="btn btn-p" onclick="saveSub()">Save Sub</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-project">
+  <div class="md lg">
+    <div class="md-ti" id="pm-ti">New Project</div>
+    <div class="fg">
+      <div class="fd"><label>Project / Lot Name</label><input id="pm-n"></div>
+      <div class="fd"><label>Client Name</label><input id="pm-cl"></div>
+      <div class="fd full"><label>Address</label><input id="pm-ad"></div>
+      <div class="fd"><label>Status</label><select id="pm-st"><option>Lead</option><option>Bidding</option><option>Active</option><option>Punch List</option><option>Complete</option></select></div>
+      <div class="fd"><label>Contract Value ($)</label><input type="number" id="pm-v"></div>
+      <div class="fd"><label>Start Date</label><input type="date" id="pm-s"></div>
+      <div class="fd"><label>Est. Completion</label><input type="date" id="pm-e"></div>
+      <div class="fd"><label>Project Manager</label><select id="pm-pm"><option>Owner</option><option>PM - Field</option><option>PM - Office</option></select></div>
+      <div class="fd"><label>Progress %</label><input type="number" id="pm-pr" value="0" min="0" max="100"></div>
+      <div class="fd full"><label>Google Drive Folder URL</label><input id="pm-drive" placeholder="Paste full Drive folder URL here..."><div style="font-size:11px;color:var(--tx3);margin-top:3px">Open the folder in Drive and copy the URL from your browser</div></div>
+      <div class="fd full"><label>Assigned Team / Subs (Ctrl+Click to multi-select)</label><select id="pm-as" multiple size="6" style="height:auto;min-height:120px"></select></div>
+      <div class="fd full"><label>Notes</label><textarea id="pm-no"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-project')">Cancel</button>
+      <button class="btn btn-p" onclick="saveProj()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-task">
+  <div class="md">
+    <div class="md-ti">Add Task</div>
+    <div class="fg">
+      <div class="fd full"><label>Task Name</label><input id="tm-n"></div>
+      <div class="fd"><label>Project</label><select id="tm-p"></select></div>
+      <div class="fd"><label>Phase</label><select id="tm-ph"><option>Pre-Construction</option><option>Foundation</option><option>Framing</option><option>Rough-In</option><option>Insulation</option><option>Drywall</option><option>Trim & Finish</option><option>Punch List</option><option>Closeout</option></select></div>
+      <div class="fd"><label>Assigned To</label><select id="tm-as"><option>Owner</option><option>PM - Field</option><option>PM - Office</option><option>Sub - Electrical</option><option>Sub - Plumbing</option><option>Sub - HVAC</option><option>Sub - Framing</option><option>Sub - Concrete</option><option>General Labor</option></select></div>
+      <div class="fd"><label>Status</label><select id="tm-st"><option>Not Started</option><option>In Progress</option><option>Complete</option></select></div>
+      <div class="fd"><label>Start Date</label><input type="date" id="tm-s"></div>
+      <div class="fd"><label>Due Date</label><input type="date" id="tm-d"></div>
+      <div class="fd full"><label>Notes</label><textarea id="tm-no" rows="2"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-task')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-punch">
+  <div class="md">
+    <div class="md-ti">Add Punch List Item</div>
+    <div class="fg">
+      <div class="fd full"><label>Description</label><input id="pu-d"></div>
+      <div class="fd"><label>Project</label><select id="pu-p"></select></div>
+      <div class="fd"><label>Category</label><select id="pu-ca"><option>Electrical</option><option>Plumbing</option><option>HVAC</option><option>Drywall</option><option>Paint</option><option>Trim</option><option>Exterior</option><option>Concrete</option><option>Flooring</option><option>Other</option></select></div>
+      <div class="fd"><label>Priority</label><select id="pu-pr"><option>Low</option><option>Medium</option><option>High</option></select></div>
+      <div class="fd"><label>Assigned To</label><select id="pu-as"><option>Owner</option><option>PM - Field</option><option>Sub - Electrical</option><option>Sub - Plumbing</option><option>Sub - HVAC</option><option>Sub - Framing</option><option>General Labor</option></select></div>
+      <div class="fd full"><label>Notes</label><textarea id="pu-no" rows="2"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-punch')">Cancel</button>
+      <button class="btn btn-p" onclick="savePunch()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-contact">
+  <div class="md">
+    <div class="md-ti" id="cm-ti">New Contact</div>
+    <div class="fg">
+      <div class="fd"><label>First Name</label><input id="cm-f"></div>
+      <div class="fd"><label>Last Name</label><input id="cm-l"></div>
+      <div class="fd"><label>Phone</label><input id="cm-ph"></div>
+      <div class="fd"><label>Email</label><input type="email" id="cm-em"></div>
+      <div class="fd full"><label>Address</label><input id="cm-ad"></div>
+      <div class="fd"><label>Type</label><select id="cm-ty"><option>Lead</option><option>Active Client</option><option>Past Client</option><option>Warranty</option></select></div>
+      <div class="fd"><label>Source</label><select id="cm-so"><option>Referral</option><option>Website</option><option>Job Sign</option><option>Social Media</option><option>Other</option></select></div>
+      <div class="fd full"><label>Google Drive Folder URL</label><input id="cm-drive" placeholder="Paste folder URL..."></div>
+      <div class="fd full"><label>Notes</label><textarea id="cm-no"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-contact')">Cancel</button>
+      <button class="btn btn-p" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-comm">
+  <div class="md">
+    <div class="md-ti">Log Communication</div>
+    <input type="hidden" id="comm-cid">
+    <div class="fg">
+      <div class="fd"><label>Type</label><select id="comm-ty"><option>Call</option><option>Email</option><option>Meeting</option><option>Note</option><option>Complaint</option></select></div>
+      <div class="fd"><label>Date</label><input type="date" id="comm-dt"></div>
+      <div class="fd full"><label>Summary</label><input id="comm-su"></div>
+      <div class="fd full"><label>Details</label><textarea id="comm-de" rows="3"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-comm')">Cancel</button>
+      <button class="btn btn-p" onclick="saveComm()">Log It</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-co">
+  <div class="md">
+    <div class="md-ti">New Change Order</div>
+    <div class="fg">
+      <div class="fd"><label>Project</label><select id="co-p"></select></div>
+      <div class="fd"><label>Requested By</label><input id="co-by"></div>
+      <div class="fd full"><label>Description</label><textarea id="co-de" rows="2"></textarea></div>
+      <div class="fd"><label>Amount ($)</label><input type="number" id="co-am"></div>
+      <div class="fd"><label>Status</label><select id="co-st"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
+      <div class="fd"><label>Date</label><input type="date" id="co-dt"></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-co')">Cancel</button>
+      <button class="btn btn-p" onclick="saveCO()">Save Change Order</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-prop">
+  <div class="md">
+    <div class="md-ti">Generate Proposal</div>
+    <div class="fg">
+      <div class="fd"><label>Project</label><select id="prop-p"></select></div>
+      <div class="fd"><label>Date</label><input type="date" id="prop-dt"></div>
+      <div class="fd full"><label>Contract Amount ($)</label><input type="number" id="prop-am"></div>
+      <div class="fd full"><label>Additional Notes</label><textarea id="prop-no" rows="2"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-prop')">Cancel</button>
+      <button class="btn btn-p" onclick="genProposal()">Generate &amp; Print</button>
+    </div>
+  </div>
+</div>
+
+<div class="mo" id="mo-inv">
+  <div class="md">
+    <div class="md-ti">New Draw Invoice</div>
+    <div class="fg">
+      <div class="fd"><label>Project</label><select id="inv-p"></select></div>
+      <div class="fd"><label>Draw #</label><input type="number" id="inv-dr" value="1"></div>
+      <div class="fd"><label>Date</label><input type="date" id="inv-dt"></div>
+      <div class="fd"><label>Amount ($)</label><input type="number" id="inv-am"></div>
+      <div class="fd full"><label>Description</label><textarea id="inv-de" rows="2"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-inv')">Cancel</button>
+      <button class="btn btn-p" onclick="saveInvoice()">Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM TRADE MODAL -->
+<div class="mo" id="mo-ct">
+  <div class="md">
+    <div class="md-ti" id="ct-ti">New Custom Trade</div>
+    <div class="fg">
+      <div class="fd full"><label>Trade Name</label><input id="ct-n" placeholder="e.g., Solar Panels, Pool Installation"></div>
+      <div class="fd"><label>Pricing Type</label>
+        <select id="ct-t"><option value="flat">Flat Fee</option><option value="psf">Per Sq Ft</option></select>
+      </div>
+      <div class="fd"><label>Rate / Amount ($)</label><input type="number" id="ct-v" step="0.01" value="0"></div>
+      <div class="fd full"><label>Assigned Company / Sub</label>
+        <select id="ct-co"><option value="">— Select sub or leave blank —</option></select>
+      </div>
+      <div class="fd"><label>Phone</label><input id="ct-ph"></div>
+      <div class="fd"><label>Email</label><input id="ct-em"></div>
+      <div class="fd full"><label>Notes / Specs</label><textarea id="ct-no" rows="3"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-ct')">Cancel</button>
+      <button class="btn btn-p" onclick="saveCustomTrade()">Save Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRADE ESTIMATOR MODAL (per-trade calc) -->
+<div class="mo" id="mo-te">
+  <div class="md">
+    <div class="md-ti" id="te-ti">Trade Estimator</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:14px">Override how this trade is calculated for the current estimate.</div>
+    <div class="fg">
+      <div class="fd full"><label>Trade</label><input id="te-name" disabled></div>
+      <div class="fd"><label>Pricing Basis</label>
+        <select id="te-type">
+          <option value="psf">Per Sq Ft</option>
+          <option value="flat">Flat Fee</option>
+          <option value="manual">Manual Total</option>
+        </select>
+      </div>
+      <div class="fd"><label>Rate / Amount ($)</label><input type="number" id="te-rate" step="0.01"></div>
+      <div class="fd full"><label>Notes (optional)</label><textarea id="te-no" rows="2"></textarea></div>
+      <div class="fd full" style="background:var(--sur2);padding:10px;border-radius:var(--rad);font-size:13px">
+        <div style="color:var(--tx2);margin-bottom:4px">Live Preview:</div>
+        <div id="te-preview" style="font-size:16px;font-weight:500;color:var(--ac)">$0</div>
+      </div>
+    </div>
+    <div class="md-ft">
+      <button class="btn btn-r" onclick="resetTradeOverride()">Reset to Default</button>
+      <button class="btn" onclick="closeM('mo-te')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTradeOverride()">Save Override</button>
+    </div>
+  </div>
+</div>
+
+<!-- LABOR/HOURS MODAL -->
+<div class="mo" id="mo-lab">
+  <div class="md">
+    <div class="md-ti">Log Labor Hours</div>
+    <div class="fg">
+      <div class="fd"><label>Date</label><input type="date" id="lab-dt"></div>
+      <div class="fd"><label>Worker / Sub</label><select id="lab-who"></select></div>
+      <div class="fd"><label>Trade</label><input id="lab-tr" placeholder="e.g., Framing"></div>
+      <div class="fd"><label>Hours</label><input type="number" id="lab-hr" step="0.25" value="8"></div>
+      <div class="fd"><label>Hourly Rate ($)</label><input type="number" id="lab-rt" step="0.01" value="35"></div>
+      <div class="fd"><label>Apply to Trade Code (optional)</label><input id="lab-apply" placeholder="e.g., 14a (adds to actuals)"></div>
+      <div class="fd full"><label>Notes</label><textarea id="lab-no" rows="2"></textarea></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-lab')">Cancel</button>
+      <button class="btn btn-p" onclick="saveLabor()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRIVE UPLOAD MODAL -->
+<div class="mo" id="mo-drive">
+  <div class="md">
+    <div class="md-ti">Upload to Google Drive</div>
+    <input type="hidden" id="drv-pid">
+    <input type="hidden" id="drv-folder">
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:14px" id="drv-target">Selecting folder...</div>
+    <div class="fd full" style="margin-bottom:12px"><label>Choose Files</label><input type="file" id="drv-files" multiple></div>
+    <div id="drv-progress" style="font-size:13px;color:var(--tx2)"></div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-drive')">Close</button>
+      <button class="btn btn-p" onclick="performDriveUpload()">Upload</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+if(typeof firebase !== 'undefined' && !window._fbInit){
+  window._fbInit = true;
+  firebase.initializeApp({
+    apiKey:"AIzaSyAVFMuMZbhoj11h4ParHQXwwkfQJYK5eiE",
+    authDomain:"hbp-portal.firebaseapp.com",
+    projectId:"hbp-portal",
+    storageBucket:"hbp-portal.firebasestorage.app",
+    messagingSenderId:"926996391769",
+    appId:"1:926996391769:web:731d2b597ad7f9a0e34e48"
+  });
+  window._db = firebase.firestore();
+}
+</script>
+
+<script>
+// ── AUTO-INIT (no login required) ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    try{init();}catch(e){console.error(e);}
+    if(typeof startSync==='function')setTimeout(startSync,1000);
+  },50);
+});
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+function ld(k,d){
+  try{var v=localStorage.getItem('hbp2_'+k);return v?JSON.parse(v):d;}catch(e){return d;}
+}
+function sd(k,v){
+  try{localStorage.setItem('hbp2_'+k,JSON.stringify(v));}catch(e){}
+  if(window._db){window._db.collection('hbp_data').doc(k).set({d:JSON.stringify(v)}).catch(function(){});}
+}
+let projects=ld('proj',[]),tasks=ld('tasks',[]),punches=ld('punch',[]),contacts=ld('contacts',[]),
+    comms=ld('comms',[]),cos=ld('cos',[]),proposals=ld('proposals',[]),invoices=ld('invoices',[]),
+    activity=ld('activity',[]),subs=ld('subs',[]),customTrades=ld('customTrades',[]),
+    labor=ld('labor',[]),tradeOverrides=ld('tradeOverrides',{}),driveCfg=ld('driveCfg',{cid:'',key:''});
+
+const DR={
+  plans_psf:{l:'Plans',u:'per sq ft',v:.25,t:'psf'},permits_psf:{l:'Permits',u:'per sq ft',v:.43,t:'psf'},
+  electrical_psf:{l:'Electrical',u:'per sq ft',v:3.25,t:'psf'},hvac_psf:{l:'HVAC',u:'per sq ft',v:3.25,t:'psf'},
+  insulation_psf:{l:'Insulation',u:'per sq ft',v:1.02,t:'psf'},drywall_psf:{l:'Drywall',u:'per sq ft',v:1.88,t:'psf'},
+  framing_psf:{l:'Framing Labor',u:'per sq ft',v:2.52,t:'psf'},trim_psf:{l:'Trim Labor',u:'per sq ft',v:2.0,t:'psf'},
+  lumber_psf:{l:'Lumber (Rough)',u:'per sq ft',v:15.0,t:'psf'},painting_psf:{l:'Painting',u:'per sq ft',v:3.0,t:'psf'},
+  conc_lab:{l:'Concrete Labor',u:'per sq ft',v:3.0,t:'psf'},conc_mat:{l:'Concrete Materials',u:'per sq ft',v:3.5,t:'psf'},
+  layout:{l:'Layout / Survey',u:'flat fee',v:300,t:'flat'},excavation:{l:'Excavation',u:'flat fee',v:6920,t:'flat'},
+  grade:{l:'Grade / Seed / Straw',u:'flat fee',v:2000,t:'flat'},foundation:{l:'Foundation',u:'flat fee',v:11162,t:'flat'},
+  garage_door:{l:'Garage Door',u:'flat fee',v:2600,t:'flat'},plumbing:{l:'Plumbing',u:'flat fee',v:13000,t:'flat'},
+  roofing:{l:'Roofing',u:'flat fee',v:1500,t:'flat'},ext_cov:{l:'Exterior Covering',u:'flat fee',v:10400,t:'flat'},
+  appliances:{l:'Appliances',u:'flat fee',v:3250,t:'flat'},mirrors:{l:'Mirrors',u:'flat fee',v:600,t:'flat'},
+  cabinets:{l:'Cabinets & Countertops',u:'flat fee',v:10000,t:'flat'},cleanup:{l:'Clean Up',u:'flat fee',v:2600,t:'flat'},
+  flooring:{l:'Floor Covering',u:'flat fee',v:4500,t:'flat'},hardware:{l:'Hardware Finish',u:'flat fee',v:900,t:'flat'},
+  water_line:{l:'Water Line/Meter',u:'flat fee',v:1700,t:'flat'},shelving:{l:'Shelving',u:'flat fee',v:900,t:'flat'},
+  temp:{l:'Temp Facilities',u:'flat fee',v:600,t:'flat'},insurance:{l:'Insurance',u:'flat fee',v:600,t:'flat'}
+};
+let rates=ld('rates',DR);
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const fmtd=n=>'$'+(+n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
+const tod=()=>new Date().toISOString().split('T')[0];
+const logAct=msg=>{activity.unshift({msg,ts:new Date().toLocaleString()});if(activity.length>60)activity.pop();sd('activity',activity);};
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function sBadge(s){const m={Lead:'b-gy',Bidding:'b-am',Active:'b-bl','Punch List':'b-or',Complete:'b-gr'};return `<span class="badge ${m[s]||'b-gy'}">${s}</span>`;}
+function pBadge(p){const m={Low:'b-gy',Medium:'b-am',High:'b-rd'};return `<span class="badge ${m[p]||'b-gy'}">${p}</span>`;}
+
+function popSelects(){
+  updateSubDropdowns();
+  const ids=['tm-p','pu-p','co-p','inv-p','prop-p','tr-ps','pu-ps','gantt-pf','tpf','co-pf'];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const isFilter=id==='tr-ps'||id==='pu-ps'||id==='gantt-pf'||id==='tpf'||id==='co-pf';
+    const cur=el.value;
+    el.innerHTML=(isFilter?'<option value="">All Projects</option>':'<option value="">-- Select --</option>')+
+      projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    el.value=cur;
+  });
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function nav(p){
+  document.querySelectorAll('.pg').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.si').forEach(x=>x.classList.remove('active'));
+  const pg=document.getElementById('pg-'+p);
+  if(!pg)return;
+  pg.classList.add('active');
+  document.querySelectorAll('.si').forEach(x=>{if(x.getAttribute('onclick')&&x.getAttribute('onclick').includes("'"+p+"'"))x.classList.add('active');});
+  popSelects();
+  const map={dashboard:renderDash,projects:renderProjects,schedule:renderSchedule,tracker:renderTracker,punch:renderPunch,crm:renderCRM,changeorders:renderCOs,proposals:renderProposals,invoices:renderInvoices,rates:renderRates,estimate:calcEst,settings:renderSettings,subs:renderSubs};
+  if(map[p])map[p]();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init(){
+  if(!projects.length)seed();
+  calcEst();renderRates();popSelects();renderDash();
+  document.getElementById('inv-dt').value=tod();
+  document.getElementById('co-dt').value=tod();
+  document.getElementById('comm-dt').value=tod();
+  document.getElementById('prop-dt').value=tod();
+}
+
+function seed(){
+  const p1={id:uid(),name:'Lot 29 Plainview',client:'Smith Family',addr:'116 Stoner Way, Charlestown IN',status:'Active',value:183079,start:'2024-04-01',end:'2024-10-15',pm:'Owner',notes:'Primary residence, 1792 sqft',progress:45,
+    estLines:[{c:'1',d:'Plans',a:450},{c:'2',d:'Permits',a:774},{c:'3',d:'Layout',a:300},{c:'4',d:'Excavation',a:6920},{c:'7',d:'Concrete',a:11853},{c:'8',d:'Foundation',a:11162},{c:'10',d:'Electrical',a:5824},{c:'12',d:'HVAC',a:5824},{c:'13',d:'Insulation',a:1828},{c:'14a',d:'Framing Labor',a:4515},{c:'16a',d:'Lumber',a:26880},{c:'17',d:'Painting',a:5376},{c:'18',d:'Plumbing',a:13000},{c:'20',d:'Exterior',a:10400},{c:'24',d:'Cabinets',a:10000}],
+    actuals:{'1':450,'2':820,'4':6750,'8':11400,'10':5900}
+  };
+  const p2={id:uid(),name:'Lot 14 Meadow Run',client:'Johnson Build',addr:'44 Creek Rd, Jeffersonville IN',status:'Bidding',value:245000,start:'2024-07-01',end:'2025-02-01',pm:'PM - Field',notes:'Two story walkout basement',progress:5,estLines:[],actuals:{}};
+  const p3={id:uid(),name:'Lot 7 Timber Ridge',client:'Davis Family',addr:'12 Oak Lane, Sellersburg IN',status:'Punch List',value:198500,start:'2024-01-15',end:'2024-07-01',pm:'Owner',notes:'Final walkthrough pending',progress:92,estLines:[],actuals:{}};
+  projects.push(p1,p2,p3);sd('proj',projects);
+
+  tasks.push(
+    {id:uid(),name:'Pour Foundation',project:p1.id,phase:'Foundation',assigned:'Sub - Concrete',status:'Complete',start:'2024-04-15',due:'2024-04-22',notes:''},
+    {id:uid(),name:'Rough Framing',project:p1.id,phase:'Framing',assigned:'Sub - Framing',status:'In Progress',start:'2024-05-01',due:'2024-05-20',notes:''},
+    {id:uid(),name:'Rough Electrical',project:p1.id,phase:'Rough-In',assigned:'Sub - Electrical',status:'Not Started',start:'2024-05-21',due:'2024-06-05',notes:''},
+    {id:uid(),name:'Final Walkthrough',project:p3.id,phase:'Closeout',assigned:'Owner',status:'Not Started',start:'2024-07-01',due:'2024-07-05',notes:''}
+  );sd('tasks',tasks);
+
+  punches.push(
+    {id:uid(),project:p3.id,desc:'Touch-up paint in master bedroom',category:'Paint',priority:'Low',assigned:'General Labor',done:false,notes:''},
+    {id:uid(),project:p3.id,desc:'Fix garage door weatherstrip',category:'Exterior',priority:'Medium',assigned:'PM - Field',done:false,notes:''},
+    {id:uid(),project:p3.id,desc:'Grout crack in master bath',category:'Plumbing',priority:'High',assigned:'Sub - Plumbing',done:true,notes:''},
+    {id:uid(),project:p3.id,desc:'Install missing outlet covers (x4)',category:'Electrical',priority:'Low',assigned:'Sub - Electrical',done:true,notes:''}
+  );sd('punch',punches);
+
+  const c1={id:uid(),first:'Robert',last:'Smith',phone:'812-555-0192',email:'rsmith@email.com',addr:'116 Stoner Way',type:'Active Client',source:'Referral',notes:'Referred by Davis family',projId:p1.id};
+  const c2={id:uid(),first:'Mike',last:'Johnson',phone:'812-555-0341',email:'mjohnson@email.com',addr:'44 Creek Rd',type:'Lead',source:'Website',notes:'Interested in 2-story plan',projId:p2.id};
+  contacts.push(c1,c2);sd('contacts',contacts);
+
+  comms.push(
+    {id:uid(),cid:c1.id,type:'Call',date:'2024-05-10',summary:'Weekly progress update',detail:'Discussed framing timeline, client OK with schedule.'},
+    {id:uid(),cid:c1.id,type:'Note',date:'2024-05-02',summary:'Foundation inspection passed',detail:'Clark County inspector approved pour.'}
+  );sd('comms',comms);
+
+  cos.push(
+    {id:uid(),project:p1.id,by:'Robert Smith',desc:'Upgrade kitchen countertops to granite',amt:3500,status:'Approved',date:'2024-04-28'},
+    {id:uid(),project:p1.id,by:'Robert Smith',desc:'Add 12x8 deck extension off back door',amt:4200,status:'Pending',date:'2024-05-12'}
+  );sd('cos',cos);
+
+  proposals.push({id:uid(),project:p1.id,client:'Robert Smith',amount:183079,date:'2024-03-15',status:'Signed'});sd('proposals',proposals);
+  invoices.push(
+    {id:uid(),project:p1.id,client:'Robert Smith',draw:1,date:'2024-04-01',amount:45000,desc:'Foundation and excavation draw',status:'Paid'},
+    {id:uid(),project:p1.id,client:'Robert Smith',draw:2,date:'2024-05-01',amount:38000,desc:'Framing draw',status:'Sent'}
+  );sd('invoices',invoices);
+  subs=[
+    {id:uid(),fn:'Mike',ln:'Hartley',co:'Hartley Electric',tr:'Electrical',ph:'812-555-0211',em:'mike@hartleyelectric.com',lic:'EC-4421',ins:'2025-06-01',rt:'5',st:'Active',no:'Reliable, always on schedule'},
+    {id:uid(),fn:'Dave',ln:'Rucker',co:'Rucker Plumbing',tr:'Plumbing',ph:'812-555-0388',em:'dave@ruckerplumbing.com',lic:'PL-8812',ins:'2025-03-15',rt:'4',st:'Active',no:'Good work, sometimes slow to start'},
+    {id:uid(),fn:'Tom',ln:'Albright',co:'Albright Framing',tr:'Framing',ph:'812-555-0194',em:'tom@albrightframing.com',lic:'',ins:'',rt:'5',st:'Active',no:'Best framer in the area'},
+    {id:uid(),fn:'Chris',ln:'Nally',co:'Nally Concrete',tr:'Concrete',ph:'812-555-0477',em:'cnally@email.com',lic:'',ins:'2025-12-01',rt:'3',st:'Active',no:'Affordable, needs supervision'}
+  ];sd('subs',subs);
+  logAct('Demo data loaded');
+  var _cols=['proj','tasks','punch','contacts','comms','cos','proposals','invoices'];
+  if(window._db){_cols.forEach(function(k){var v=localStorage.getItem('hbp2_'+k);if(v)window._db.collection('hbp_data').doc(k).set({d:v}).catch(function(){});});}
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDash(){
+  const active=projects.filter(p=>p.status==='Active').length;
+  const tv=projects.reduce((s,p)=>s+(+p.value||0),0);
+  const oc=cos.filter(c=>c.status==='Pending').length;
+  const op=punches.filter(p=>!p.done).length;
+
+  // Efficiency & Profit calculations across non-Lead/Bidding jobs
+  const liveProjects=projects.filter(p=>p.status==='Active'||p.status==='Punch List'||p.status==='Complete');
+  let totEst=0,totAct=0,totRev=0;
+  liveProjects.forEach(p=>{
+    (p.estLines||[]).forEach(l=>{totEst+=(+l.a||0);});
+    Object.values(p.actuals||{}).forEach(a=>{totAct+=(+a||0);});
+    // Add labor cost
+    labor.filter(lb=>lb.project===p.id).forEach(lb=>{totAct+=(+lb.hours||0)*(+lb.rate||0);});
+    totRev+=(+p.value||0);
+  });
+  const profit=totRev-totAct;
+  // Efficiency: how close actual is to estimated. 100% = exactly on budget. >100% = under budget (good)
+  let efficiency=0;
+  if(totAct>0&&totEst>0){efficiency=Math.round((totEst/totAct)*100);}
+  else if(totEst>0&&totAct===0){efficiency=100;}
+  const profitMargin=totRev>0?Math.round(profit/totRev*100):0;
+
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat"><div class="sl">Active Projects</div><div class="sv blue">${active}</div><div class="ss">${projects.length} total</div></div>
+    <div class="stat"><div class="sl">Total Pipeline</div><div class="sv">${fmt(tv)}</div><div class="ss">all projects</div></div>
+    <div class="stat"><div class="sl">Pending Change Orders</div><div class="sv amber">${oc}</div><div class="ss">awaiting approval</div></div>
+    <div class="stat"><div class="sl">Open Punch Items</div><div class="sv ${op>5?'red':'green'}">${op}</div><div class="ss">all jobs</div></div>
+    <div class="stat"><div class="sl">Current Profit</div><div class="sv ${profit>=0?'green':'red'}">${fmt(profit)}</div><div class="ss">${profitMargin}% margin · revenue − actual costs</div></div>
+    <div class="stat"><div class="sl">Cost Efficiency</div><div class="sv ${efficiency>=100?'green':efficiency>=85?'amber':'red'}">${efficiency}%</div><div class="ss">${efficiency>=100?'under budget':efficiency>=85?'near budget':'over budget'} · est ÷ actual</div></div>
+    <div class="stat"><div class="sl">Total Spent</div><div class="sv">${fmt(totAct)}</div><div class="ss">across ${liveProjects.length} live projects</div></div>
+    <div class="stat"><div class="sl">Total Estimated</div><div class="sv blue">${fmt(totEst)}</div><div class="ss">budgeted costs</div></div>`;
+
+  document.getElementById('dash-proj').innerHTML=projects.length?projects.slice(0,6).map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--brd);cursor:pointer" onclick="nav('projects')">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500">${p.name}</div>
+        <div style="font-size:11px;color:var(--tx3)">${p.client} · ${fmt(p.value||0)}</div>
+        <div class="pb" style="margin-top:5px"><div class="pf ${(p.progress||0)>70?'gr':(p.progress||0)<25?'am':''}" style="width:${p.progress||0}%"></div></div>
+      </div>
+      ${sBadge(p.status)}
+    </div>`).join(''):'<div class="es"><div>No projects yet</div></div>';
+
+  document.getElementById('dash-act').innerHTML=activity.slice(0,8).map(a=>`
+    <div style="padding:7px 0;border-bottom:1px solid var(--brd)">
+      <div style="font-size:12px">${a.msg}</div>
+      <div style="font-size:11px;color:var(--tx3)">${a.ts}</div>
+    </div>`).join('')||'<div class="es"><div>No activity yet</div></div>';
+
+  const now=new Date();
+  const soon=tasks.filter(t=>{if(t.status==='Complete')return false;const d=new Date(t.due);return d-now<7*864e5&&d>now;});
+  document.getElementById('dash-tasks').innerHTML=soon.length?soon.map(t=>{
+    const pr=projects.find(p=>p.id===t.project);
+    return `<div style="padding:7px 0;border-bottom:1px solid var(--brd)"><div style="font-size:13px;font-weight:500">${t.name}</div><div style="font-size:11px;color:var(--tx3)">${pr?pr.name:''} · Due ${t.due}</div></div>`;
+  }).join(''):'<div class="es"><div>No tasks due in 7 days</div></div>';
+
+  document.getElementById('dash-cos').innerHTML=cos.filter(c=>c.status==='Pending').map(co=>{
+    const pr=projects.find(p=>p.id===co.project);
+    return `<div style="padding:7px 0;border-bottom:1px solid var(--brd)"><div style="font-size:13px;font-weight:500">${co.desc.slice(0,55)}${co.desc.length>55?'...':''}</div><div style="font-size:11px;color:var(--tx3)">${pr?pr.name:''} · ${fmtd(co.amt)}</div></div>`;
+  }).join('')||'<div class="es"><div>No pending change orders</div></div>';
+}
+
+// ── PROJECTS ──────────────────────────────────────────────────────────────────
+let pf='',psf='';
+function filterProj(v){pf=v.toLowerCase();renderProjects();}
+function filterProjStatus(v){psf=v;renderProjects();}
+function renderProjects(){
+  const fl=projects.filter(p=>(!pf||p.name.toLowerCase().includes(pf)||p.client.toLowerCase().includes(pf))&&(!psf||p.status===psf));
+  document.getElementById('proj-tbody').innerHTML=fl.length?fl.map(p=>{
+    const driveBtn=p.driveUrl?`<button class="btn btn-sm" onclick="window.open('${p.driveUrl}','_blank')" title="Open Drive folder" style="background:#fef0e8;color:#b54000;border-color:#f0c0a0">📁</button><button class="btn btn-sm" onclick="openDriveUploadForProj('${p.id}')" title="Upload to Drive">⬆</button>`:'';
+    return `<tr>
+    <td><div style="font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--tx3)">${p.addr||''}</div>${(p.assigned&&p.assigned.length)?`<div style="font-size:10px;color:var(--tx2);margin-top:3px">👥 ${p.assigned.slice(0,2).join(', ')}${p.assigned.length>2?' +'+(p.assigned.length-2):''}</div>`:''}</td>
+    <td>${p.client}</td><td>${sBadge(p.status)}</td><td>${fmt(p.value||0)}</td>
+    <td style="width:110px"><div style="font-size:11px;color:var(--tx2);margin-bottom:2px">${p.progress||0}%</div><div class="pb"><div class="pf" style="width:${p.progress||0}%"></div></div></td>
+    <td style="color:var(--tx2)">${p.start||'—'}</td><td style="color:var(--tx2)">${p.end||'—'}</td>
+    <td><div style="display:flex;gap:4px;flex-wrap:wrap">${driveBtn}<button class="btn btn-sm" onclick="editProj('${p.id}')">Edit</button><button class="btn btn-sm btn-r" onclick="delProj('${p.id}')">Del</button></div></td>
+  </tr>`;}).join(''):'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--tx3)">No projects found</td></tr>';
+}
+
+let epid=null;
+function fillAssignedDropdown(selected){
+  selected=selected||[];
+  const sel=document.getElementById('pm-as');
+  if(!sel)return;
+  const defaults=['Owner','PM - Field','PM - Office','General Labor'];
+  const subOpts=subs.filter(s=>s.st==='Active').map(s=>`${s.fn} ${s.ln} (${s.tr})`);
+  const ctOpts=customTrades.filter(c=>c.company).map(c=>c.company+' — '+c.name);
+  const all=[...defaults,...subOpts,...ctOpts];
+  sel.innerHTML=all.map(o=>`<option value="${o}" ${selected.indexOf(o)>=0?'selected':''}>${o}</option>`).join('');
+}
+function openNewProj(){
+  epid=null;document.getElementById('pm-ti').textContent='New Project';
+  ['pm-n','pm-cl','pm-ad','pm-no','pm-drive'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pm-st').value='Lead';document.getElementById('pm-v').value='';
+  document.getElementById('pm-s').value=tod();document.getElementById('pm-e').value='';document.getElementById('pm-pr').value='0';
+  fillAssignedDropdown([]);
+  document.getElementById('mo-project').classList.add('open');
+}
+function editProj(id){
+  const p=projects.find(x=>x.id===id);epid=id;
+  document.getElementById('pm-ti').textContent='Edit Project';
+  document.getElementById('pm-n').value=p.name;document.getElementById('pm-cl').value=p.client;
+  document.getElementById('pm-ad').value=p.addr;document.getElementById('pm-st').value=p.status;
+  document.getElementById('pm-v').value=p.value;document.getElementById('pm-s').value=p.start;
+  document.getElementById('pm-e').value=p.end;document.getElementById('pm-pm').value=p.pm;
+  document.getElementById('pm-pr').value=p.progress||0;document.getElementById('pm-no').value=p.notes;
+  document.getElementById('pm-drive').value=p.driveUrl||'';
+  fillAssignedDropdown(p.assigned||[]);
+  document.getElementById('mo-project').classList.add('open');
+}
+function saveProj(){
+  const asg=Array.from(document.getElementById('pm-as').selectedOptions).map(o=>o.value);
+  const existing=epid?projects.find(x=>x.id===epid):null;
+  const p={id:epid||uid(),name:document.getElementById('pm-n').value||'Untitled',client:document.getElementById('pm-cl').value,
+    addr:document.getElementById('pm-ad').value,status:document.getElementById('pm-st').value,
+    value:+document.getElementById('pm-v').value||0,start:document.getElementById('pm-s').value,
+    end:document.getElementById('pm-e').value,pm:document.getElementById('pm-pm').value,
+    progress:+document.getElementById('pm-pr').value||0,notes:document.getElementById('pm-no').value,
+    driveUrl:document.getElementById('pm-drive').value.trim(),
+    assigned:asg,
+    estLines:existing?existing.estLines||[]:[],
+    actuals:existing?existing.actuals||{}:{}};
+  if(epid){const i=projects.findIndex(x=>x.id===epid);projects[i]=p;}else projects.push(p);
+  sd('proj',projects);logAct(`Project ${p.name} ${epid?'updated':'created'}`);
+  closeM('mo-project');popSelects();renderProjects();renderDash();
+}
+function delProj(id){
+  if(!confirm('Delete this project and all related data?'))return;
+  const p=projects.find(x=>x.id===id);
+  projects=projects.filter(x=>x.id!==id);sd('proj',projects);
+  logAct(`Project ${p?p.name:''} deleted`);popSelects();renderProjects();
+}
+
+// ── ESTIMATING ────────────────────────────────────────────────────────────────
+let lastLines=[], lastGrand=0;
+function calcEst(){
+  const bf=+document.getElementById('ebf').value||0,bu=+document.getElementById('ebu').value||0;
+  const ff=+document.getElementById('eff').value||0,sf=+document.getElementById('esf').value||0;
+  const g=+document.getElementById('eg').value||0,por=+document.getElementById('ep').value||0;
+  const pat=+document.getElementById('eta').value||0,drv=+document.getElementById('edv').value||0;
+  const mk=(+document.getElementById('emk').value||15)/100;
+  const sw=+document.getElementById('esw').value||3025;
+  const ht=bf+bu+ff+sf,co=g+por+pat+drv;
+  const R=k=>rates[k]?rates[k].v:0;
+  const Rt=k=>rates[k]?rates[k].t:'flat';
+
+  // Calculate trade amount based on type
+  function tradeAmt(key,defaultBasis,defaultArea){
+    const r=rates[key];
+    if(!r)return 0;
+    if(r.t==='flat')return r.v;
+    return r.v*defaultArea;
+  }
+
+  let lines=[
+    {c:'1',k:'plans_psf',d:'Plans',b:`${ht.toLocaleString()} sf`,a:tradeAmt('plans_psf','psf',ht)},
+    {c:'2',k:'permits_psf',d:'Permits',b:`${ht.toLocaleString()} sf`,a:tradeAmt('permits_psf','psf',ht)},
+    {c:'3',k:'layout',d:'Layout / Survey',b:rates.layout&&rates.layout.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('layout','flat',ht)},
+    {c:'4',k:'excavation',d:'Excavation',b:rates.excavation&&rates.excavation.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('excavation','flat',ht)},
+    {c:'5',k:'grade',d:'Grade / Seed / Straw',b:rates.grade&&rates.grade.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('grade','flat',ht)},
+    {c:'6',k:'septic',d:'Septic / Sewer',b:'selected type',a:sw},
+    {c:'7',k:'concrete',d:'Concrete Flatwork',b:`${co.toLocaleString()} sf`,a:co*(R('conc_lab')+R('conc_mat'))},
+    {c:'8',k:'foundation',d:'Foundation',b:rates.foundation&&rates.foundation.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('foundation','flat',ht)},
+    {c:'9',k:'drywall_psf',d:'Drywall',b:`${ht.toLocaleString()} sf`,a:tradeAmt('drywall_psf','psf',ht)},
+    {c:'10',k:'electrical_psf',d:'Electrical',b:`${ht.toLocaleString()} sf`,a:tradeAmt('electrical_psf','psf',ht)},
+    {c:'11',k:'garage_door',d:'Garage Door',b:rates.garage_door&&rates.garage_door.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('garage_door','flat',ht)},
+    {c:'12',k:'hvac_psf',d:'HVAC',b:`${ht.toLocaleString()} sf`,a:tradeAmt('hvac_psf','psf',ht)},
+    {c:'13',k:'insulation_psf',d:'Insulation',b:`${ht.toLocaleString()} sf`,a:tradeAmt('insulation_psf','psf',ht)},
+    {c:'14a',k:'framing_psf',d:'Labor: Framing',b:`${ht.toLocaleString()} sf`,a:tradeAmt('framing_psf','psf',ht)},
+    {c:'14b',k:'trim_psf',d:'Labor: Trim',b:`${ht.toLocaleString()} sf`,a:tradeAmt('trim_psf','psf',ht)},
+    {c:'16a',k:'lumber_psf',d:'Lumber (Rough)',b:`${ht.toLocaleString()} sf`,a:tradeAmt('lumber_psf','psf',ht)},
+    {c:'17',k:'painting_psf',d:'Painting',b:`${ht.toLocaleString()} sf`,a:tradeAmt('painting_psf','psf',ht)},
+    {c:'18',k:'plumbing',d:'Plumbing',b:rates.plumbing&&rates.plumbing.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('plumbing','flat',ht)},
+    {c:'19',k:'roofing',d:'Roofing',b:rates.roofing&&rates.roofing.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('roofing','flat',ht)},
+    {c:'20',k:'ext_cov',d:'Exterior Covering',b:rates.ext_cov&&rates.ext_cov.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('ext_cov','flat',ht)},
+    {c:'21',k:'appliances',d:'Appliances',b:rates.appliances&&rates.appliances.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('appliances','flat',ht)},
+    {c:'22',k:'mirrors',d:'Mirrors',b:rates.mirrors&&rates.mirrors.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('mirrors','flat',ht)},
+    {c:'24',k:'cabinets',d:'Cabinets & Countertops',b:rates.cabinets&&rates.cabinets.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('cabinets','flat',ht)},
+    {c:'26',k:'cleanup',d:'Clean Up',b:rates.cleanup&&rates.cleanup.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('cleanup','flat',ht)},
+    {c:'28a',k:'flooring',d:'Floor Covering',b:rates.flooring&&rates.flooring.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('flooring','flat',ht)},
+    {c:'29',k:'hardware',d:'Hardware Finish',b:rates.hardware&&rates.hardware.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('hardware','flat',ht)},
+    {c:'32',k:'water_line',d:'Water Line/Meter',b:rates.water_line&&rates.water_line.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('water_line','flat',ht)},
+    {c:'33',k:'shelving',d:'Shelving',b:rates.shelving&&rates.shelving.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('shelving','flat',ht)},
+    {c:'42',k:'temp',d:'Temp Facilities',b:rates.temp&&rates.temp.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('temp','flat',ht)},
+    {c:'43',k:'insurance',d:'Insurance',b:rates.insurance&&rates.insurance.t==='psf'?`${ht.toLocaleString()} sf`:'flat',a:tradeAmt('insurance','flat',ht)},
+  ];
+
+  // Add custom trades
+  customTrades.forEach((ct,i)=>{
+    const code='CT'+(i+1);
+    const amt=ct.type==='psf'?(+ct.value||0)*ht:(+ct.value||0);
+    const basis=ct.type==='psf'?`${ht.toLocaleString()} sf @ $${ct.value}`:'flat';
+    lines.push({c:code,k:'custom_'+ct.id,d:ct.name+(ct.company?' ('+ct.company+')':''),b:basis,a:amt,custom:true,ctId:ct.id});
+  });
+
+  // Apply per-line overrides (from this estimate session)
+  lines=lines.map(l=>{
+    const ov=tradeOverrides[l.c];
+    if(!ov)return l;
+    let newAmt=l.a;
+    if(ov.type==='manual')newAmt=+ov.rate||0;
+    else if(ov.type==='flat')newAmt=+ov.rate||0;
+    else if(ov.type==='psf')newAmt=(+ov.rate||0)*ht;
+    return {...l,a:newAmt,b:ov.type==='manual'?'manual':(ov.type==='psf'?ht.toLocaleString()+' sf @ $'+ov.rate:'flat'),overridden:true};
+  });
+
+  const sub=lines.reduce((s,l)=>s+l.a,0);
+  const mka=sub*mk,gr=sub+mka;
+  const psf=ht>0?gr/ht:0;
+  lastLines=lines;lastGrand=gr;
+  document.getElementById('est-metrics').innerHTML=`
+    <div class="stat"><div class="sl">Heated Sq Ft</div><div class="sv">${ht.toLocaleString()}</div></div>
+    <div class="stat"><div class="sl">Subtotal</div><div class="sv">${fmt(sub)}</div></div>
+    <div class="stat"><div class="sl">Total Bid</div><div class="sv blue">${fmt(gr)}</div></div>
+    <div class="stat"><div class="sl">Cost / Sq Ft</div><div class="sv green">$${psf.toFixed(2)}</div></div>`;
+  document.getElementById('est-tb').innerHTML=lines.map(l=>{
+    const lockIcon=l.overridden?' 🔒':'';
+    const delBtn=l.custom?`<button class="btn btn-sm btn-r" onclick="delCustomTradeFromEst('${l.ctId}')" title="Remove custom trade" style="margin-left:4px">×</button>`:'';
+    return `<tr>
+    <td style="color:var(--tx2)">${l.c}</td>
+    <td>${l.d}${lockIcon}</td>
+    <td style="color:var(--tx2);font-size:12px">${l.b}</td>
+    <td style="text-align:right;font-weight:500">${fmtd(l.a)}</td>
+    <td style="text-align:right"><button class="btn btn-sm" onclick="openTradeEst('${l.c}','${l.d.replace(/'/g,"\\'")}',${l.a})" title="Edit this trade">✎</button>${delBtn}</td>
+  </tr>`;}).join('');
+  document.getElementById('est-sub').textContent=fmtd(sub);
+  document.getElementById('est-mkl').textContent=`+ ${Math.round(mk*100)}% Markup`;
+  document.getElementById('est-mka').textContent=fmtd(mka);
+  document.getElementById('est-gr').textContent=fmtd(gr);
+}
+
+// ── PER-TRADE ESTIMATOR ───────────────────────────────────────────────────────
+let tradeEstCode=null;
+function openTradeEst(code,name,curAmt){
+  tradeEstCode=code;
+  document.getElementById('te-ti').textContent='Estimate: '+name;
+  document.getElementById('te-name').value=name;
+  const ov=tradeOverrides[code];
+  if(ov){
+    document.getElementById('te-type').value=ov.type;
+    document.getElementById('te-rate').value=ov.rate;
+    document.getElementById('te-no').value=ov.notes||'';
+  }else{
+    document.getElementById('te-type').value='flat';
+    document.getElementById('te-rate').value=Math.round(curAmt*100)/100;
+    document.getElementById('te-no').value='';
+  }
+  updateTradeEstPreview();
+  document.getElementById('te-type').onchange=updateTradeEstPreview;
+  document.getElementById('te-rate').oninput=updateTradeEstPreview;
+  document.getElementById('mo-te').classList.add('open');
+}
+function updateTradeEstPreview(){
+  const t=document.getElementById('te-type').value;
+  const r=+document.getElementById('te-rate').value||0;
+  const ht=(+document.getElementById('ebf').value||0)+(+document.getElementById('ebu').value||0)+(+document.getElementById('eff').value||0)+(+document.getElementById('esf').value||0);
+  let amt=0;
+  if(t==='psf')amt=r*ht;
+  else amt=r;
+  document.getElementById('te-preview').textContent=fmtd(amt)+(t==='psf'?` (${ht.toLocaleString()} sf × $${r})`:'');
+}
+function saveTradeOverride(){
+  if(!tradeEstCode)return;
+  tradeOverrides[tradeEstCode]={
+    type:document.getElementById('te-type').value,
+    rate:+document.getElementById('te-rate').value||0,
+    notes:document.getElementById('te-no').value
+  };
+  sd('tradeOverrides',tradeOverrides);
+  closeM('mo-te');calcEst();
+}
+function resetTradeOverride(){
+  if(!tradeEstCode)return;
+  delete tradeOverrides[tradeEstCode];
+  sd('tradeOverrides',tradeOverrides);
+  closeM('mo-te');calcEst();
+}
+
+// ── CUSTOM TRADES ─────────────────────────────────────────────────────────────
+let editingCT=null;
+function openAddCustomTrade(){
+  editingCT=null;
+  document.getElementById('ct-ti').textContent='New Custom Trade';
+  ['ct-n','ct-ph','ct-em','ct-no'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('ct-t').value='flat';
+  document.getElementById('ct-v').value=0;
+  // Populate company dropdown from subs
+  const sel=document.getElementById('ct-co');
+  sel.innerHTML='<option value="">— None —</option>'+
+    subs.filter(s=>s.st==='Active').map(s=>`<option value="${s.co}">${s.co} (${s.fn} ${s.ln} — ${s.tr})</option>`).join('');
+  document.getElementById('mo-ct').classList.add('open');
+}
+function editCustomTrade(id){
+  const c=customTrades.find(x=>x.id===id);if(!c)return;
+  editingCT=id;
+  document.getElementById('ct-ti').textContent='Edit Custom Trade';
+  document.getElementById('ct-n').value=c.name;
+  document.getElementById('ct-t').value=c.type;
+  document.getElementById('ct-v').value=c.value;
+  const sel=document.getElementById('ct-co');
+  sel.innerHTML='<option value="">— None —</option>'+
+    subs.filter(s=>s.st==='Active').map(s=>`<option value="${s.co}">${s.co} (${s.fn} ${s.ln} — ${s.tr})</option>`).join('');
+  // Add the saved company if not in list
+  if(c.company&&!Array.from(sel.options).some(o=>o.value===c.company)){
+    sel.innerHTML+=`<option value="${c.company}" selected>${c.company}</option>`;
+  }
+  sel.value=c.company||'';
+  document.getElementById('ct-ph').value=c.phone||'';
+  document.getElementById('ct-em').value=c.email||'';
+  document.getElementById('ct-no').value=c.notes||'';
+  document.getElementById('mo-ct').classList.add('open');
+}
+function saveCustomTrade(){
+  const ct={
+    id:editingCT||uid(),
+    name:document.getElementById('ct-n').value||'Untitled Trade',
+    type:document.getElementById('ct-t').value,
+    value:+document.getElementById('ct-v').value||0,
+    company:document.getElementById('ct-co').value,
+    phone:document.getElementById('ct-ph').value,
+    email:document.getElementById('ct-em').value,
+    notes:document.getElementById('ct-no').value
+  };
+  if(editingCT){const i=customTrades.findIndex(x=>x.id===editingCT);customTrades[i]=ct;}
+  else customTrades.push(ct);
+  sd('customTrades',customTrades);
+  logAct(`Custom trade ${editingCT?'updated':'added'}: ${ct.name}`);
+  closeM('mo-ct');calcEst();renderRates();
+}
+function delCustomTrade(id){
+  const c=customTrades.find(x=>x.id===id);
+  if(!confirm('Delete custom trade "'+(c?c.name:'')+'"?'))return;
+  customTrades=customTrades.filter(x=>x.id!==id);
+  sd('customTrades',customTrades);calcEst();renderRates();
+}
+function delCustomTradeFromEst(id){delCustomTrade(id);}
+function saveEstAsProj(){
+  const n=document.getElementById('ec').value||'New Estimate';
+  const p={id:uid(),name:n,client:n,addr:document.getElementById('ea').value,status:'Bidding',
+    value:Math.round(lastGrand),start:tod(),end:'',pm:'Owner',notes:'Created from estimate',progress:0,
+    estLines:lastLines,actuals:{}};
+  projects.push(p);sd('proj',projects);logAct(`Estimate saved as project: ${n}`);popSelects();
+  alert('Project created! Find it in All Projects.');
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────────────────────
+function schedTab(id,el){
+  ['gantt','calendar','tasks'].forEach(t=>document.getElementById('st-'+t).style.display=t===id?'block':'none');
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='gantt')renderGantt();if(id==='calendar')renderCal();if(id==='tasks')renderTasks();
+}
+function renderSchedule(){renderGantt();}
+
+function renderGantt(){
+  const yr=new Date().getFullYear();
+  document.getElementById('gantt-yr').textContent=yr;
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fpid=document.getElementById('gantt-pf')?.value;
+  const fl=projects.filter(p=>!fpid||p.id===fpid);
+  let h=`<div class="gh"><div class="gh-lbl">Project</div><div class="gh-mo">${mo.map(m=>`<div class="gm">${m}</div>`).join('')}</div></div>`;
+  fl.forEach(p=>{
+    let bar='';
+    if(p.start&&p.end){
+      const s=new Date(p.start),e=new Date(p.end),ys=new Date(yr,0,1);
+      const sd2=Math.max(0,(s-ys)/(365*864e5)*100),ed=Math.min(100,(e-ys)/(365*864e5)*100);
+      const w=Math.max(1,ed-sd2);
+      const clr={Lead:'#9b9890',Bidding:'#8a5200',Active:'#1a4d7c','Punch List':'#b54000',Complete:'#2d6a3f'};
+      bar=`<div class="gr-bar" style="left:${sd2}%;width:${w}%;background:${clr[p.status]||'#888'}">${p.name}</div>`;
+    }
+    h+=`<div class="gr-row"><div class="gr-lbl">${p.name}<br><span style="font-size:10px;color:var(--tx3)">${p.client}</span></div><div class="gr-tr">${bar}</div></div>`;
+  });
+  if(!fl.length)h+='<div style="padding:28px;text-align:center;color:var(--tx3)">No projects to display</div>';
+  document.getElementById('gantt-c').innerHTML=h;
+}
+
+let calM=new Date().getMonth(),calY=new Date().getFullYear();
+function calNav(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
+function renderCal(){
+  const mons=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('cal-lbl').textContent=mons[calM]+' '+calY;
+  const first=new Date(calY,calM,1).getDay(),dim=new Date(calY,calM+1,0).getDate(),ts=tod();
+  let h=days.map(d=>`<div class="chdr">${d}</div>`).join('');
+  for(let i=0;i<first;i++)h+=`<div class="cday om"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=ds===ts;
+    const dt=tasks.filter(t=>t.due===ds||t.start===ds);
+    const de=projects.filter(p=>p.start===ds||p.end===ds);
+    h+=`<div class="cday ${isT?'td':''}"><div class="cdt ${isT?'tn':''}">${d}</div>
+      ${dt.map(t=>`<div class="cev ${t.status==='Complete'?'gr':t.status==='In Progress'?'am':''}">${t.name}</div>`).join('')}
+      ${de.map(p=>`<div class="cev">${p.name.slice(0,12)} ${p.start===ds?'▶':'■'}</div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('cal-c').innerHTML=h;
+}
+
+function renderTasks(){
+  const pp=document.getElementById('tpf')?.value,ss=document.getElementById('tsf')?.value;
+  const fl=tasks.filter(t=>(!pp||t.project===pp)&&(!ss||t.status===ss));
+  const sc={'Complete':'b-gr','In Progress':'b-bl','Not Started':'b-gy'};
+  document.getElementById('tasks-tb').innerHTML=fl.length?fl.map(t=>{
+    const pr=projects.find(p=>p.id===t.project);
+    return `<tr><td style="font-weight:500">${t.name}</td><td>${pr?pr.name:'—'}</td><td style="color:var(--tx2)">${t.phase}</td><td>${t.assigned}</td><td style="color:var(--tx2)">${t.start||'—'}</td><td style="color:var(--tx2)">${t.due||'—'}</td><td><span class="badge ${sc[t.status]||'b-gy'}">${t.status}</span></td><td><button class="btn btn-sm btn-r" onclick="delTask('${t.id}')">×</button></td></tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--tx3)">No tasks found</td></tr>';
+}
+function openAddTask(){
+  document.getElementById('tm-n').value='';document.getElementById('tm-no').value='';
+  document.getElementById('tm-s').value=tod();document.getElementById('tm-d').value='';
+  popSelects();document.getElementById('mo-task').classList.add('open');
+}
+function saveTask(){
+  const t={id:uid(),name:document.getElementById('tm-n').value||'Task',project:document.getElementById('tm-p').value,
+    phase:document.getElementById('tm-ph').value,assigned:document.getElementById('tm-as').value,
+    status:document.getElementById('tm-st').value,start:document.getElementById('tm-s').value,
+    due:document.getElementById('tm-d').value,notes:document.getElementById('tm-no').value};
+  tasks.push(t);sd('tasks',tasks);logAct(`Task added: ${t.name}`);
+  closeM('mo-task');renderGantt();renderTasks();
+}
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);sd('tasks',tasks);renderTasks();}
+
+// ── COST TRACKER ──────────────────────────────────────────────────────────────
+function renderTracker(){
+  const pid=document.getElementById('tr-ps').value;
+  const pr=projects.find(p=>p.id===pid);
+  const tc=document.getElementById('tr-card'),tm=document.getElementById('tr-metrics'),tlc=document.getElementById('tr-labor-card');
+  if(!pr){tc.style.display='none';tlc.style.display='none';tm.innerHTML='';return;}
+  tc.style.display='block';tlc.style.display='block';
+  const lines=pr.estLines||[],acts=pr.actuals||{};
+  let es=0,as=0;
+  // build assigned dropdown options for inline use
+  const subOpts=['',...subs.filter(s=>s.st==='Active').map(s=>`${s.fn} ${s.ln} (${s.tr})`),'Owner','PM - Field','General Labor'];
+  document.getElementById('tr-tb').innerHTML=lines.length?lines.map((l,idx)=>{
+    es+=(+l.a||0);const act=acts[l.c]||0;as+=act;
+    const diff=(+l.a||0)-act,bc=act===0?'b-gy':diff>=0?'b-gr':'b-rd',bt=act===0?'Pending':diff>=0?'Under':'Over';
+    const assignedOpts=subOpts.map(o=>`<option value="${o}" ${o===(l.assigned||'')?'selected':''}>${o||'— unassigned —'}</option>`).join('');
+    return `<tr>
+      <td style="color:var(--tx2)">${l.c}</td>
+      <td><input class="ii" value="${l.d.replace(/"/g,'&quot;')}" style="width:100%;min-width:140px" onchange="updTrLineName('${pid}',${idx},this.value)"></td>
+      <td><select class="ii" style="min-width:130px" onchange="updTrLineAssign('${pid}',${idx},this.value)">${assignedOpts}</select></td>
+      <td style="text-align:right"><input class="ii" type="number" value="${l.a}" step="0.01" style="width:100px;text-align:right" onchange="updTrLineEst('${pid}',${idx},this.value)"></td>
+      <td style="text-align:right"><input class="ii" type="number" value="${act}" style="width:100px;text-align:right" onchange="updAct('${pid}','${l.c}',this.value)"></td>
+      <td style="text-align:right;color:${diff>=0?'var(--gr)':'var(--rd)'}">${act>0?fmtd(diff):'—'}</td>
+      <td><span class="badge ${bc}">${bt}</span></td>
+      <td><button class="btn btn-sm btn-r" onclick="delTrLine('${pid}',${idx})">×</button></td></tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:22px;color:var(--tx3)">No estimate lines. Generate an estimate and save as project, or click + Add Trade Line.</td></tr>';
+
+  // Labor totals for this project
+  const projLabor=labor.filter(l=>l.project===pid);
+  const totalHours=projLabor.reduce((s,l)=>s+(+l.hours||0),0);
+  const totalLaborCost=projLabor.reduce((s,l)=>s+((+l.hours||0)*(+l.rate||0)),0);
+  const avgRate=totalHours>0?(totalLaborCost/totalHours):0;
+  const grandActual=as+totalLaborCost;
+  const rem=es-grandActual;
+
+  document.getElementById('tr-e').textContent=fmtd(es);
+  document.getElementById('tr-a').textContent=fmtd(as);
+  document.getElementById('tr-d').textContent=fmtd(es-as);
+
+  tm.innerHTML=`<div class="stat"><div class="sl">Estimated</div><div class="sv">${fmt(es)}</div></div>
+    <div class="stat"><div class="sl">Actual + Labor</div><div class="sv blue">${fmt(grandActual)}</div></div>
+    <div class="stat"><div class="sl">Remaining</div><div class="sv ${rem<0?'red':'green'}">${fmt(rem)}</div></div>
+    <div class="stat"><div class="sl">% Complete</div><div class="sv">${es>0?Math.round(grandActual/es*100):0}%</div></div>`;
+
+  // Labor table
+  document.getElementById('tr-labor-stats').innerHTML=`
+    <div class="stat"><div class="sl">Total Hours</div><div class="sv">${totalHours.toFixed(1)}</div></div>
+    <div class="stat"><div class="sl">Labor Cost</div><div class="sv blue">${fmt(totalLaborCost)}</div></div>
+    <div class="stat"><div class="sl">Avg Rate</div><div class="sv">$${avgRate.toFixed(2)}/hr</div></div>
+    <div class="stat"><div class="sl">Entries</div><div class="sv">${projLabor.length}</div></div>`;
+  document.getElementById('tr-labor-tb').innerHTML=projLabor.length?projLabor.map(lb=>`<tr>
+    <td style="color:var(--tx2)">${lb.date}</td>
+    <td style="font-weight:500">${lb.who||'—'}</td>
+    <td>${lb.trade||'—'}</td>
+    <td style="text-align:right">${lb.hours}</td>
+    <td style="text-align:right">$${(+lb.rate).toFixed(2)}</td>
+    <td style="text-align:right;font-weight:500">${fmtd((+lb.hours)*(+lb.rate))}</td>
+    <td style="font-size:11px;color:var(--tx3)">${lb.notes||''}</td>
+    <td><button class="btn btn-sm btn-r" onclick="delLabor('${lb.id}')">×</button></td>
+  </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:18px;color:var(--tx3)">No labor logged. Click + Log Hours to add an entry.</td></tr>';
+}
+function updAct(pid,code,val){const pr=projects.find(p=>p.id===pid);if(!pr)return;if(!pr.actuals)pr.actuals={};pr.actuals[code]=+val||0;sd('proj',projects);renderTracker();renderDash();}
+function updTrLineEst(pid,idx,val){const pr=projects.find(p=>p.id===pid);if(!pr||!pr.estLines||!pr.estLines[idx])return;pr.estLines[idx].a=+val||0;sd('proj',projects);renderTracker();renderDash();}
+function updTrLineName(pid,idx,val){const pr=projects.find(p=>p.id===pid);if(!pr||!pr.estLines||!pr.estLines[idx])return;pr.estLines[idx].d=val;sd('proj',projects);}
+function updTrLineAssign(pid,idx,val){const pr=projects.find(p=>p.id===pid);if(!pr||!pr.estLines||!pr.estLines[idx])return;pr.estLines[idx].assigned=val;sd('proj',projects);}
+function delTrLine(pid,idx){const pr=projects.find(p=>p.id===pid);if(!pr||!pr.estLines)return;if(!confirm('Delete this trade line?'))return;const code=pr.estLines[idx].c;pr.estLines.splice(idx,1);if(pr.actuals)delete pr.actuals[code];sd('proj',projects);renderTracker();renderDash();}
+function addTrLine(){
+  const pid=document.getElementById('tr-ps').value;const pr=projects.find(p=>p.id===pid);if(!pr)return;
+  const d=prompt('Trade name:');if(!d)return;
+  if(!pr.estLines)pr.estLines=[];
+  pr.estLines.push({c:'M'+(pr.estLines.length+1),d,b:'manual',a:0,assigned:''});
+  sd('proj',projects);renderTracker();renderDash();
+}
+
+// ── LABOR ─────────────────────────────────────────────────────────────────────
+function openAddLabor(){
+  const pid=document.getElementById('tr-ps').value;
+  if(!pid){alert('Select a project first.');return;}
+  document.getElementById('lab-dt').value=tod();
+  document.getElementById('lab-tr').value='';
+  document.getElementById('lab-hr').value=8;
+  document.getElementById('lab-rt').value=35;
+  document.getElementById('lab-no').value='';
+  document.getElementById('lab-apply').value='';
+  // Populate worker dropdown
+  const sel=document.getElementById('lab-who');
+  const subOpts=subs.filter(s=>s.st==='Active').map(s=>`<option value="${s.fn} ${s.ln} (${s.tr})">${s.fn} ${s.ln} — ${s.tr}</option>`).join('');
+  sel.innerHTML='<option>Owner</option><option>PM - Field</option><option>PM - Office</option><option>General Labor</option>'+subOpts;
+  document.getElementById('mo-lab').classList.add('open');
+}
+function saveLabor(){
+  const pid=document.getElementById('tr-ps').value;
+  if(!pid){alert('Select a project first.');return;}
+  const entry={id:uid(),project:pid,
+    date:document.getElementById('lab-dt').value,
+    who:document.getElementById('lab-who').value,
+    trade:document.getElementById('lab-tr').value,
+    hours:+document.getElementById('lab-hr').value||0,
+    rate:+document.getElementById('lab-rt').value||0,
+    apply:document.getElementById('lab-apply').value.trim(),
+    notes:document.getElementById('lab-no').value};
+  labor.push(entry);
+  // If apply code is set, add to actuals on that code
+  if(entry.apply){
+    const pr=projects.find(p=>p.id===pid);
+    if(pr){if(!pr.actuals)pr.actuals={};pr.actuals[entry.apply]=(pr.actuals[entry.apply]||0)+(entry.hours*entry.rate);sd('proj',projects);}
+  }
+  sd('labor',labor);
+  logAct(`Labor: ${entry.hours}hr @ $${entry.rate} for ${entry.who}`);
+  closeM('mo-lab');renderTracker();renderDash();
+}
+function delLabor(id){
+  if(!confirm('Remove this labor entry?'))return;
+  labor=labor.filter(l=>l.id!==id);sd('labor',labor);renderTracker();renderDash();
+}
+
+// ── PUNCH LIST ────────────────────────────────────────────────────────────────
+function renderPunch(){
+  const pid=document.getElementById('pu-ps').value;
+  const items=punches.filter(p=>!pid||p.project===pid);
+  const done=items.filter(i=>i.done).length;
+  const pct=items.length?Math.round(done/items.length*100):0;
+  document.getElementById('pu-prog-lbl').textContent=`${done}/${items.length} complete`;
+  const pb=document.getElementById('pu-pb');pb.style.width=pct+'%';
+  pb.className='pf '+(pct===100?'gr':pct>50?'':'am');
+  document.getElementById('punch-list').innerHTML=items.length?items.map(item=>`
+    <div class="pi">
+      <div class="pck ${item.done?'dn':''}" onclick="togglePunch('${item.id}')">
+        ${item.done?'<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="white" stroke-width="2"><path d="M2 5.5l2.5 2.5 4.5-4.5"/></svg>':''}
+      </div>
+      <div class="pt2">
+        <div class="ptit ${item.done?'dn':''}">${item.desc}</div>
+        <div class="pmt">${item.category} · ${item.assigned} · ${pBadge(item.priority)}</div>
+      </div>
+      <button class="btn btn-sm btn-r" onclick="delPunch('${item.id}')">×</button>
+    </div>`).join(''):'<div class="es"><div>No punch items for this project</div></div>';
+  const cats={};items.forEach(i=>{if(!cats[i.category])cats[i.category]=[];cats[i.category].push(i);});
+  document.getElementById('punch-cats').innerHTML=Object.entries(cats).map(([cat,its])=>`
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx2);margin-bottom:6px">${cat} (${its.filter(i=>i.done).length}/${its.length})</div>
+      <div class="pb"><div class="pf" style="width:${its.length?Math.round(its.filter(i=>i.done).length/its.length*100):0}%"></div></div>
+    </div>`).join('')||'<div class="es"><div>Select a project to see categories</div></div>';
+}
+function togglePunch(id){const i=punches.find(p=>p.id===id);if(i){i.done=!i.done;sd('punch',punches);renderPunch();}}
+function delPunch(id){punches=punches.filter(p=>p.id!==id);sd('punch',punches);renderPunch();}
+function openAddPunch(){['pu-d','pu-no'].forEach(i=>document.getElementById(i).value='');popSelects();document.getElementById('mo-punch').classList.add('open');}
+function savePunch(){
+  const item={id:uid(),project:document.getElementById('pu-p').value,desc:document.getElementById('pu-d').value||'Item',
+    category:document.getElementById('pu-ca').value,priority:document.getElementById('pu-pr').value,
+    assigned:document.getElementById('pu-as').value,notes:document.getElementById('pu-no').value,done:false};
+  punches.push(item);sd('punch',punches);logAct(`Punch item: ${item.desc}`);closeM('mo-punch');renderPunch();
+}
+
+// ── CRM ───────────────────────────────────────────────────────────────────────
+let selCid=null;
+function filterContacts(q){renderCRM(q);}
+function renderCRM(q=''){
+  const fl=contacts.filter(c=>!q||`${c.first} ${c.last}`.toLowerCase().includes(q.toLowerCase())||c.email.toLowerCase().includes(q));
+  const tc={Lead:'b-am','Active Client':'b-bl','Past Client':'b-gy',Warranty:'b-gr'};
+  document.getElementById('contact-list').innerHTML=fl.map(c=>`
+    <div style="background:var(--sur);border:1px solid ${selCid===c.id?'var(--ac)':'var(--brd)'};border-radius:var(--rad2);padding:11px 14px;cursor:pointer;box-shadow:var(--sh)" onclick="selContact('${c.id}')">
+      <div style="font-weight:500">${c.first} ${c.last}</div>
+      <div style="font-size:12px;color:var(--tx2)">${c.phone}</div>
+      <div style="margin-top:5px"><span class="badge ${tc[c.type]||'b-gy'}">${c.type}</span></div>
+    </div>`).join('')||'<div class="es"><div>No contacts</div></div>';
+}
+function selContact(id){
+  selCid=id;renderCRM();
+  const c=contacts.find(x=>x.id===id);
+  const pr=projects.find(p=>p.id===c.projId);
+  const cComms=comms.filter(x=>x.cid===id);
+  const cCOs=cos.filter(co=>pr&&co.project===pr.id);
+  const tc={Lead:'b-am','Active Client':'b-bl','Past Client':'b-gy',Warranty:'b-gr'};
+  const driveBtn=c.driveUrl?`<button class="btn btn-sm" onclick="window.open('${c.driveUrl}','_blank')" style="background:#fef0e8;color:#b54000;border-color:#f0c0a0">📁 Open Drive</button>`:'';
+  document.getElementById('contact-detail').innerHTML=`
+    <div class="card">
+      <div class="ch">
+        <div><div style="font-size:18px;font-family:Georgia,serif;font-style:italic">${c.first} ${c.last}</div>
+          <div style="font-size:13px;color:var(--tx2);margin-top:2px"><span class="badge ${tc[c.type]||'b-gy'}">${c.type}</span> &nbsp; Source: ${c.source}</div>
+        </div>
+        <div style="display:flex;gap:7px">
+          ${driveBtn}
+          <button class="btn btn-sm btn-p" onclick="openLogComm('${id}')">+ Log Comm.</button>
+          <button class="btn btn-sm" onclick="editContact('${id}')">Edit</button>
+        </div>
+      </div>
+      <div class="fg" style="margin-bottom:14px">
+        <div><div style="font-size:11px;color:var(--tx3)">Phone</div><div>${c.phone||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--tx3)">Email</div><div>${c.email||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--tx3)">Address</div><div>${c.addr||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--tx3)">Project</div><div>${pr?pr.name:'—'}</div></div>
+      </div>
+      ${c.notes?`<div style="background:var(--sur2);border-radius:var(--rad);padding:9px 12px;font-size:13px;color:var(--tx2);margin-bottom:14px">${c.notes}</div>`:''}
+      <hr class="dv">
+      <div class="ct" style="margin-bottom:11px">Communication Log (${cComms.length})</div>
+      ${cComms.length?cComms.map(cm=>{
+        const ic={Call:'📞',Email:'📧',Meeting:'🤝',Note:'📝',Complaint:'⚠️'};
+        return `<div class="tli"><div class="tlic" style="background:var(--acl);color:var(--ac)">${ic[cm.type]||'💬'}</div>
+          <div class="tlb"><div class="tlt">${cm.summary}</div><div class="tld">${cm.detail||''}</div></div>
+          <div class="tldate">${cm.date}<br><span class="badge b-gy">${cm.type}</span></div></div>`;
+      }).join(''):'<div class="es"><div>No communications logged</div></div>'}
+      ${cCOs.length?`<hr class="dv"><div class="ct" style="margin-bottom:11px">Change Orders (${cCOs.length})</div>
+        ${cCOs.map(co=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+          <div><div style="font-size:13px;font-weight:500">${co.desc}</div><div style="font-size:11px;color:var(--tx3)">${co.date}</div></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-weight:500">${fmtd(co.amt)}</span>${sBadge(co.status)}</div>
+        </div>`).join('')}`:''}
+    </div>`;
+}
+function openAddContact(){
+  selCid=null;document.getElementById('cm-ti').textContent='New Contact';
+  ['cm-f','cm-l','cm-ph','cm-em','cm-ad','cm-no','cm-drive'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('mo-contact').classList.add('open');
+}
+function editContact(id){
+  const c=contacts.find(x=>x.id===id);selCid=id;
+  document.getElementById('cm-ti').textContent='Edit Contact';
+  document.getElementById('cm-f').value=c.first;document.getElementById('cm-l').value=c.last;
+  document.getElementById('cm-ph').value=c.phone;document.getElementById('cm-em').value=c.email;
+  document.getElementById('cm-ad').value=c.addr;document.getElementById('cm-ty').value=c.type;
+  document.getElementById('cm-so').value=c.source;document.getElementById('cm-no').value=c.notes;
+  document.getElementById('cm-drive').value=c.driveUrl||'';
+  document.getElementById('mo-contact').classList.add('open');
+}
+function saveContact(){
+  const c={id:selCid||uid(),first:document.getElementById('cm-f').value,last:document.getElementById('cm-l').value,
+    phone:document.getElementById('cm-ph').value,email:document.getElementById('cm-em').value,
+    addr:document.getElementById('cm-ad').value,type:document.getElementById('cm-ty').value,
+    source:document.getElementById('cm-so').value,notes:document.getElementById('cm-no').value,
+    driveUrl:document.getElementById('cm-drive').value.trim()};
+  const i=contacts.findIndex(x=>x.id===c.id);
+  if(i>=0)contacts[i]=c;else contacts.push(c);
+  sd('contacts',contacts);logAct(`Contact: ${c.first} ${c.last}`);closeM('mo-contact');renderCRM();
+  if(selCid===c.id)selContact(c.id);
+}
+function openLogComm(cid){
+  document.getElementById('comm-cid').value=cid;
+  document.getElementById('comm-su').value='';document.getElementById('comm-de').value='';
+  document.getElementById('comm-dt').value=tod();document.getElementById('mo-comm').classList.add('open');
+}
+function saveComm(){
+  const cm={id:uid(),cid:document.getElementById('comm-cid').value,type:document.getElementById('comm-ty').value,
+    date:document.getElementById('comm-dt').value,summary:document.getElementById('comm-su').value,
+    detail:document.getElementById('comm-de').value};
+  comms.push(cm);sd('comms',comms);logAct(`Logged: ${cm.summary}`);closeM('mo-comm');
+  if(selCid)selContact(selCid);
+}
+
+// ── CHANGE ORDERS ─────────────────────────────────────────────────────────────
+function renderCOs(){
+  const pf=document.getElementById('co-pf')?.value;
+  const fl=cos.filter(c=>!pf||c.project===pf);
+  const sc={Pending:'b-am',Approved:'b-gr',Rejected:'b-rd'};
+  document.getElementById('co-tb').innerHTML=fl.length?fl.map((co,i)=>{
+    const pr=projects.find(p=>p.id===co.project);
+    return `<tr><td style="font-weight:500">CO-${String(i+1).padStart(3,'0')}</td><td>${pr?pr.name:'—'}</td><td>${co.desc}</td><td>${co.by}</td><td style="color:var(--tx2)">${co.date}</td><td style="font-weight:500">${fmtd(co.amt)}</td><td><span class="badge ${sc[co.status]||'b-gy'}">${co.status}</span></td>
+    <td><div style="display:flex;gap:4px">${co.status==='Pending'?`<button class="btn btn-sm btn-g" onclick="approveCO('${co.id}')">Approve</button>`:''}<button class="btn btn-sm btn-r" onclick="delCO('${co.id}')">×</button></div></td></tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--tx3)">No change orders</td></tr>';
+}
+function openAddCO(){['co-by','co-de','co-am'].forEach(i=>document.getElementById(i).value='');document.getElementById('co-dt').value=tod();popSelects();document.getElementById('mo-co').classList.add('open');}
+function saveCO(){
+  const co={id:uid(),project:document.getElementById('co-p').value,by:document.getElementById('co-by').value,
+    desc:document.getElementById('co-de').value,amt:+document.getElementById('co-am').value||0,
+    status:document.getElementById('co-st').value,date:document.getElementById('co-dt').value};
+  cos.push(co);sd('cos',cos);logAct(`Change order: ${co.desc.slice(0,40)}`);closeM('mo-co');renderCOs();renderDash();
+}
+function approveCO(id){const co=cos.find(c=>c.id===id);if(co){co.status='Approved';sd('cos',cos);renderCOs();logAct('Change order approved');}}
+function delCO(id){cos=cos.filter(c=>c.id!==id);sd('cos',cos);renderCOs();}
+
+// ── PROPOSALS ─────────────────────────────────────────────────────────────────
+function renderProposals(){
+  const sc={Draft:'b-gy',Sent:'b-am',Signed:'b-gr',Rejected:'b-rd'};
+  document.getElementById('prop-tb').innerHTML=proposals.length?proposals.map(p=>{
+    const pr=projects.find(x=>x.id===p.project);
+    return `<tr><td>${pr?pr.name:'—'}</td><td>${p.client}</td><td style="font-weight:500">${fmtd(p.amount)}</td><td style="color:var(--tx2)">${p.date}</td><td><span class="badge ${sc[p.status]||'b-gy'}">${p.status}</span></td>
+    <td><button class="btn btn-sm" onclick="printProp('${p.id}')">🖨 Print</button></td></tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--tx3)">No proposals yet</td></tr>';
+}
+function openProposalGen(){
+  popSelects();document.getElementById('prop-dt').value=tod();
+  document.getElementById('prop-am').value=Math.round(lastGrand)||'';
+  document.getElementById('prop-no').value='';
+  document.getElementById('mo-prop').classList.add('open');
+}
+function genProposal(){
+  const pid=document.getElementById('prop-p').value;
+  const pr=pid?projects.find(p=>p.id===pid):null;
+  const amt=+document.getElementById('prop-am').value||0;
+  const dt=document.getElementById('prop-dt').value;
+  const p={id:uid(),project:pid,client:pr?pr.client:'Client',amount:amt,date:dt,status:'Draft'};
+  proposals.push(p);sd('proposals',proposals);logAct(`Proposal generated: ${fmtd(amt)}`);
+  closeM('mo-prop');renderProposals();printProp(p.id);
+}
+function printProp(id){
+  const p=proposals.find(x=>x.id===id);
+  const pr=p?projects.find(x=>x.id===p.project):null;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Proposal</title><style>body{font-family:Georgia,serif;padding:60px;font-size:13px;line-height:1.9;color:#1a1916}h1{font-size:22px;font-style:italic}h2{font-size:13px;font-weight:bold;margin-top:24px;margin-bottom:6px;border-bottom:1px solid #e0e0d8;padding-bottom:3px;font-family:-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase}.tot{font-size:18px;font-weight:bold;border:2px solid #1a4d7c;padding:16px 20px;margin-top:32px;text-align:right;color:#1a4d7c}.sig{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:60px}.sig div{border-top:1px solid #888;padding-top:8px;font-size:12px;color:#888}</style></head><body>
+<div style="display:flex;justify-content:space-between;margin-bottom:36px">
+<div><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#aaa;margin-bottom:6px">Home Builders Plus</div><h1>Contract Proposal</h1><div style="color:#888;font-size:12px;font-family:-apple-system,sans-serif">9515 Marion Martin Road · Charlestown, IN 47111<br>(502) 643-4855</div></div>
+<div style="text-align:right;font-size:13px;color:#888;font-family:-apple-system,sans-serif"><div>Date: ${p?.date||tod()}</div><div style="margin-top:4px">Project: ${pr?.name||'—'}</div><div>Client: ${p?.client||'—'}</div>${pr?.addr?`<div>${pr.addr}</div>`:''}</div>
+</div>
+<h2>Scope of Work Includes</h2>
+<p><b>Foundation:</b> 10″ thick walls, 8″×20″ footing, 3500 lb concrete mix, #8 stone backfill (compacted), 4″ floor.</p>
+<p><b>Excavation:</b> Excavation for foundation, backfill, grade, seed and straw affected areas.</p>
+<p><b>Framing:</b> Per blueprints and specifications. All lumber and labor included.</p>
+<p><b>Electrical:</b> Complete rough-in and finish per plans and local code.</p>
+<p><b>HVAC:</b> Dual-fuel system per plans. All ductwork and equipment included.</p>
+<p><b>Plumbing:</b> Complete rough-in and finish. All fixtures per allowances.</p>
+<p><b>Insulation:</b> R-13 batt in walls, R-30 in ceiling.</p>
+<p><b>Drywall:</b> Sanded walls, textured ceilings throughout.</p>
+<p><b>Roofing:</b> Owens Corning Oakridge shingles, complete installation.</p>
+<p><b>Exterior:</b> Hardie siding, aluminum gutters and downspouts, all trim.</p>
+<p><b>Painting:</b> Interior living areas and garage, labor and materials.</p>
+<p><b>Concrete:</b> Garage floor (slick), driveway, patio, and sidewalk (brushed).</p>
+<p><b>Included:</b> Building permit, layout/survey, builders risk insurance, clean-up.</p>
+<h2>Allowances Included</h2>
+<p>Cabinets, Vanities &amp; Countertops: $25,000 · Appliances: $2,500 · Mirrors: $1,000 · Door Hardware: $750 · Light Fixtures: $5,000 · Shelving: $2,000 · Front Door: $2,500 · Carpet: $25/yd · Building Permits: $2,100 · Septic or Sewer Tap: $5,000</p>
+<div class="tot">TOTAL CONTRACT AMOUNT: ${fmtd(p?.amount||0)}</div>
+<p style="margin-top:16px;font-size:12px;color:#888;font-family:-apple-system,sans-serif">This proposal is valid for 30 days. Payment schedule to be agreed upon contract signing. All work to meet or exceed local building codes.</p>
+<div class="sig"><div>Client Signature &nbsp; / &nbsp; Date</div><div>Home Builders Plus &nbsp; / &nbsp; Date</div></div>
+</body></html>`);w.document.close();w.print();
+}
+
+// ── INVOICES ──────────────────────────────────────────────────────────────────
+function renderInvoices(){
+  const sc={Paid:'b-gr',Sent:'b-bl',Draft:'b-gy',Overdue:'b-rd'};
+  document.getElementById('inv-tb').innerHTML=invoices.length?invoices.map(inv=>{
+    const pr=projects.find(p=>p.id===inv.project);
+    return `<tr><td style="font-weight:500">Draw #${inv.draw}</td><td>${pr?pr.name:'—'}</td><td>${inv.client}</td><td style="color:var(--tx2)">${inv.date}</td><td style="font-weight:500">${fmtd(inv.amount)}</td><td><span class="badge ${sc[inv.status]||'b-gy'}">${inv.status}</span></td>
+    <td><div style="display:flex;gap:4px"><button class="btn btn-sm" onclick="printInv('${inv.id}')">🖨 Print</button>${inv.status!=='Paid'?`<button class="btn btn-sm btn-g" onclick="markPaid('${inv.id}')">Mark Paid</button>`:''}</div></td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--tx3)">No invoices yet</td></tr>';
+}
+function openNewInvoice(){document.getElementById('inv-de').value='';document.getElementById('inv-am').value='';document.getElementById('inv-dr').value='1';document.getElementById('inv-dt').value=tod();popSelects();document.getElementById('mo-inv').classList.add('open');}
+function saveInvoice(){
+  const pid=document.getElementById('inv-p').value;const pr=projects.find(p=>p.id===pid);
+  const inv={id:uid(),project:pid,client:pr?pr.client:'',draw:+document.getElementById('inv-dr').value||1,
+    date:document.getElementById('inv-dt').value,amount:+document.getElementById('inv-am').value||0,
+    desc:document.getElementById('inv-de').value,status:'Draft'};
+  invoices.push(inv);sd('invoices',invoices);logAct(`Invoice: Draw #${inv.draw} — ${fmtd(inv.amount)}`);closeM('mo-inv');renderInvoices();
+}
+function markPaid(id){const inv=invoices.find(i=>i.id===id);if(inv){inv.status='Paid';sd('invoices',invoices);renderInvoices();logAct('Invoice marked paid');}}
+function printInv(id){
+  const inv=invoices.find(i=>i.id===id);const pr=inv?projects.find(p=>p.id===inv.project):null;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>Invoice</title><style>body{font-family:-apple-system,sans-serif;padding:60px;font-size:13px;color:#1a1916}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888}</style></head><body>
+<div style="display:flex;justify-content:space-between;margin-bottom:40px">
+<div><div style="font-weight:700;font-size:18px;letter-spacing:.04em">HOME BUILDERS PLUS</div><div style="color:#888;margin-top:6px;line-height:1.8;font-size:12px">9515 Marion Martin Road<br>Charlestown, IN 47111<br>(502) 643-4855</div></div>
+<div style="text-align:right"><div style="font-size:22px;font-weight:700;color:#1a4d7c">DRAW INVOICE #${inv?.draw}</div><div style="color:#888;margin-top:8px;font-size:12px;line-height:1.8">Date: ${inv?.date}<br>Project: ${pr?.name||'—'}<br>Client: ${inv?.client}<br>Address: ${pr?.addr||'—'}</div></div>
+</div>
+<table><thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+<tbody><tr><td>${inv?.desc||'Draw request'}</td><td style="text-align:right">${fmtd(inv?.amount||0)}</td></tr></tbody>
+<tfoot><tr style="font-weight:700;font-size:15px"><td>Amount Due</td><td style="text-align:right;color:#1a4d7c">${fmtd(inv?.amount||0)}</td></tr></tfoot></table>
+<div style="margin-top:40px;font-size:12px;color:#888">Please make checks payable to: HOME BUILDERS PLUS<br>Thank you for your business.</div>
+</body></html>`);w.document.close();w.print();
+}
+
+// ── RATES ─────────────────────────────────────────────────────────────────────
+function renderRates(){
+  var all=Object.entries(rates);
+  function rateRow(entry){
+    var k=entry[0],r=entry[1];
+    var isFlat=r.t==='flat';
+    var toggleBtn='<button onclick="toggleRateType(\''+k+'\')" class="btn btn-sm" style="font-size:11px;padding:3px 8px;min-width:44px">'+(isFlat?'Flat':'$/sf')+'</button>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--brd);gap:8px">'+
+      '<div style="flex:1"><div style="font-size:13px">'+r.l+'</div><div style="font-size:11px;color:var(--tx3)">'+(isFlat?'Flat fee':'Per sq ft')+'</div></div>'+
+      toggleBtn+
+      '<div style="display:flex;align-items:center;gap:3px;font-size:13px;color:var(--tx2)">$<input type="number" step="0.01" class="ii" value="'+r.v+'" id="rt-'+k+'" style="width:80px;text-align:right"></div>'+
+    '</div>';
+  }
+  var psf=all.filter(function(e){return e[1].t==='psf';});
+  var flat=all.filter(function(e){return e[1].t==='flat';});
+  document.getElementById('rates-psf').innerHTML=psf.map(rateRow).join('')||'<div style="color:var(--tx3);text-align:center;padding:20px">No per sq ft rates</div>';
+  document.getElementById('rates-flat').innerHTML=flat.map(rateRow).join('')||'<div style="color:var(--tx3);text-align:center;padding:20px">No flat fee rates</div>';
+
+  // Render custom trades list
+  var ctList=document.getElementById('custom-trades-list');
+  if(ctList){
+    if(!customTrades.length){
+      ctList.innerHTML='<div class="es"><div>No custom trades yet. Click <strong>+ Add Custom Trade</strong> at the top to create one. Custom trades automatically appear in your estimates.</div></div>';
+    }else{
+      var rows=customTrades.map(function(c){
+        return '<tr>'+
+          '<td style="font-weight:500">'+c.name+'</td>'+
+          '<td><span class="badge '+(c.type==='psf'?'b-bl':'b-am')+'">'+(c.type==='psf'?'$/sf':'Flat')+'</span></td>'+
+          '<td>$'+(+c.value).toFixed(2)+'</td>'+
+          '<td>'+(c.company||'<span style="color:var(--tx3)">—</span>')+'</td>'+
+          '<td style="font-size:12px;color:var(--tx2)">'+(c.phone?c.phone+'<br>':'')+(c.email||'')+'</td>'+
+          '<td style="font-size:12px;color:var(--tx2);max-width:200px">'+(c.notes||'').substring(0,80)+'</td>'+
+          '<td><div style="display:flex;gap:4px"><button class="btn btn-sm" onclick="editCustomTrade(\''+c.id+'\')">Edit</button><button class="btn btn-sm btn-r" onclick="delCustomTrade(\''+c.id+'\')">×</button></div></td>'+
+        '</tr>';
+      }).join('');
+      ctList.innerHTML='<table><thead><tr><th>Trade</th><th>Type</th><th>Rate</th><th>Company</th><th>Contact</th><th>Notes</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+    }
+  }
+}
+function toggleRateType(k){
+  if(!rates[k])return;
+  rates[k].t=rates[k].t==='flat'?'psf':'flat';
+  rates[k].u=rates[k].t==='flat'?'flat fee':'per sq ft';
+  saveRates();
+  renderRates();
+  calcEst();
+}
+function saveRates(){
+  Object.keys(rates).forEach(k=>{const el=document.getElementById('rt-'+k);if(el)rates[k].v=+el.value;});
+  sd('rates',rates);calcEst();alert('Rates saved. Estimates updated.');
+}
+
+function startSync(){
+  var cols=['proj','tasks','punch','contacts','comms','cos','proposals','invoices','activity','rates','subs','customTrades','labor','tradeOverrides'];
+  if(!window._db){console.log('No DB');return;}
+  cols.forEach(function(k){
+    window._db.collection('hbp_data').doc(k).onSnapshot(function(doc){
+      if(!doc.exists)return;
+      try{
+        var val=JSON.parse(doc.data().d);
+        localStorage.setItem('hbp2_'+k,JSON.stringify(val));
+        if(k==='proj')projects=val;
+        else if(k==='tasks')tasks=val;
+        else if(k==='punch')punches=val;
+        else if(k==='contacts')contacts=val;
+        else if(k==='comms')comms=val;
+        else if(k==='cos')cos=val;
+        else if(k==='proposals')proposals=val;
+        else if(k==='invoices')invoices=val;
+        else if(k==='activity')activity=val;
+        else if(k==='rates')rates=val;
+        else if(k==='subs')subs=val;
+        else if(k==='customTrades')customTrades=val;
+        else if(k==='labor')labor=val;
+        else if(k==='tradeOverrides')tradeOverrides=val;
+        var b=document.getElementById('sync-badge');
+        if(b){b.textContent='● Live';b.style.color='#4caf50';}
+        var pg=document.querySelector('.pg.active');
+        if(pg){var id=pg.id.replace('pg-','');
+          var m={dashboard:renderDash,projects:renderProjects,tracker:renderTracker,
+            punch:renderPunch,crm:renderCRM,changeorders:renderCOs,
+            proposals:renderProposals,invoices:renderInvoices,rates:renderRates,
+            subs:renderSubs,estimate:calcEst};
+          if(m[id])try{m[id]();}catch(e){}
+          try{popSelects();}catch(e){}
+        }
+      }catch(e){}
+    },function(e){console.warn('sync err',e);});
+  });
+}
+
+// ── SUBCONTRACTORS ────────────────────────────────────────────────────────────
+var subFilter='',subTradeFilter='';
+function filterSubs(v){subFilter=v.toLowerCase();renderSubs();}
+function filterSubTrade(v){subTradeFilter=v;renderSubs();}
+
+function renderSubs(){
+  var fl=subs.filter(function(s){
+    return (!subFilter||(s.fn+' '+s.ln+' '+s.co).toLowerCase().includes(subFilter))&&
+           (!subTradeFilter||s.tr===subTradeFilter);
+  });
+  var active=subs.filter(function(s){return s.st==='Active';}).length;
+  var trades=[...new Set(subs.map(function(s){return s.tr;}))].length;
+  var avgRat=subs.length?Math.round(subs.reduce(function(a,s){return a+(+s.rt||0);},0)/subs.length*10)/10:0;
+  document.getElementById('subs-stats').innerHTML=
+    '<div class="stat"><div class="sl">Total Subs</div><div class="sv blue">'+subs.length+'</div></div>'+
+    '<div class="stat"><div class="sl">Active</div><div class="sv green">'+active+'</div></div>'+
+    '<div class="stat"><div class="sl">Trades Covered</div><div class="sv">'+trades+'</div></div>'+
+    '<div class="stat"><div class="sl">Avg Rating</div><div class="sv amber">'+avgRat+'★</div></div>';
+
+  var stars=function(n){return '★'.repeat(+n)+'☆'.repeat(5-(+n));};
+  var stBadge=function(s){var m={'Active':'b-gr','Inactive':'b-gy','Do Not Use':'b-rd'};return '<span class="badge '+(m[s]||'b-gy')+'">'+s+'</span>';};
+  document.getElementById('subs-tbody').innerHTML=fl.length?fl.map(function(s){
+    return '<tr>'+
+      '<td style="font-weight:500">'+s.fn+' '+s.ln+'</td>'+
+      '<td style="color:var(--tx2)">'+s.co+'</td>'+
+      '<td><span class="badge b-bl">'+s.tr+'</span></td>'+
+      '<td><a href="tel:'+s.ph+'" style="color:var(--ac)">'+s.ph+'</a></td>'+
+      '<td style="color:var(--tx2)">'+s.em+'</td>'+
+      '<td style="color:#c4920a;letter-spacing:1px">'+stars(s.rt)+'</td>'+
+      '<td>'+stBadge(s.st)+'</td>'+
+      '<td><div style="display:flex;gap:4px">'+
+        '<button class="btn btn-sm" onclick="editSub(\''+s.id+'\')">Edit</button>'+
+        '<button class="btn btn-sm btn-r" onclick="delSub(\''+s.id+'\')">×</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--tx3)">No subcontractors yet. Click + Add Sub to get started.</td></tr>';
+  
+  // Refresh sub dropdowns everywhere
+  updateSubDropdowns();
+}
+
+var editingSubId=null;
+function openAddSub(){
+  editingSubId=null;
+  document.getElementById('sub-modal-ti').textContent='New Subcontractor';
+  ['sub-fn','sub-ln','sub-co','sub-ph','sub-em','sub-lic','sub-no'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('sub-rt').value='5';
+  document.getElementById('sub-st').value='Active';
+  document.getElementById('mo-sub').classList.add('open');
+}
+function editSub(id){
+  var s=subs.find(function(x){return x.id===id;});
+  if(!s)return;
+  editingSubId=id;
+  document.getElementById('sub-modal-ti').textContent='Edit Subcontractor';
+  document.getElementById('sub-fn').value=s.fn||'';
+  document.getElementById('sub-ln').value=s.ln||'';
+  document.getElementById('sub-co').value=s.co||'';
+  document.getElementById('sub-tr').value=s.tr||'Electrical';
+  document.getElementById('sub-ph').value=s.ph||'';
+  document.getElementById('sub-em').value=s.em||'';
+  document.getElementById('sub-lic').value=s.lic||'';
+  document.getElementById('sub-ins').value=s.ins||'';
+  document.getElementById('sub-rt').value=s.rt||'5';
+  document.getElementById('sub-st').value=s.st||'Active';
+  document.getElementById('sub-no').value=s.no||'';
+  document.getElementById('mo-sub').classList.add('open');
+}
+function saveSub(){
+  var s={
+    id:editingSubId||uid(),
+    fn:document.getElementById('sub-fn').value,
+    ln:document.getElementById('sub-ln').value,
+    co:document.getElementById('sub-co').value,
+    tr:document.getElementById('sub-tr').value,
+    ph:document.getElementById('sub-ph').value,
+    em:document.getElementById('sub-em').value,
+    lic:document.getElementById('sub-lic').value,
+    ins:document.getElementById('sub-ins').value,
+    rt:document.getElementById('sub-rt').value,
+    st:document.getElementById('sub-st').value,
+    no:document.getElementById('sub-no').value
+  };
+  if(editingSubId){var i=subs.findIndex(function(x){return x.id===editingSubId;});subs[i]=s;}
+  else subs.push(s);
+  sd('subs',subs);
+  logAct('Sub saved: '+s.fn+' '+s.ln+' ('+s.tr+')');
+  closeM('mo-sub');
+  renderSubs();
+}
+function delSub(id){
+  var s=subs.find(function(x){return x.id===id;});
+  if(!confirm('Remove '+((s&&s.fn)||'this sub')+'?'))return;
+  subs=subs.filter(function(x){return x.id!==id;});
+  sd('subs',subs);renderSubs();
+}
+
+function updateSubDropdowns(){
+  // Build options from active subs + default options
+  var activeSubs=subs.filter(function(s){return s.st==='Active';});
+  var subOpts=activeSubs.map(function(s){
+    return '<option value="'+s.fn+' '+s.ln+' ('+s.tr+')">'+s.fn+' '+s.ln+' — '+s.tr+'</option>';
+  }).join('');
+  var defaults='<option>Owner</option><option>PM - Field</option><option>PM - Office</option>';
+  var defaultSubs='<option>Sub - Electrical</option><option>Sub - Plumbing</option><option>Sub - HVAC</option><option>Sub - Framing</option><option>Sub - Concrete</option><option>General Labor</option>';
+  var allOpts=defaults+(subOpts||defaultSubs);
+  
+  // Update task assigned dropdown
+  var tas=document.getElementById('tm-as');
+  if(tas){var cur=tas.value;tas.innerHTML=allOpts;tas.value=cur;}
+  
+  // Update punch assigned dropdown
+  var pas=document.getElementById('pu-as');
+  if(pas){var cur2=pas.value;pas.innerHTML=allOpts;pas.value=cur2;}
+}
+
+// ── SETTINGS / DRIVE INTEGRATION ──────────────────────────────────────────────
+function renderSettings(){
+  document.getElementById('gd-cid').value=driveCfg.cid||'';
+  document.getElementById('gd-key').value=driveCfg.key||'';
+  updateDriveStatus();
+}
+function saveDriveConfig(){
+  driveCfg.cid=document.getElementById('gd-cid').value.trim();
+  driveCfg.key=document.getElementById('gd-key').value.trim();
+  sd('driveCfg',driveCfg);
+  alert('Drive configuration saved. Now click "Sign In with Google" to authenticate.');
+  updateDriveStatus();
+}
+let driveTokenClient=null,driveAccessToken=null,gapiInited=false,gisInited=false;
+function maybeInitDrive(){
+  if(!driveCfg.key||!driveCfg.cid)return;
+  if(typeof gapi!=='undefined'&&!gapiInited){
+    gapi.load('client',function(){
+      gapi.client.init({apiKey:driveCfg.key,discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']}).then(function(){
+        gapiInited=true;updateDriveStatus();
+      }).catch(function(e){console.error('gapi init err',e);});
+    });
+  }
+  if(typeof google!=='undefined'&&google.accounts&&!gisInited){
+    try{
+      driveTokenClient=google.accounts.oauth2.initTokenClient({
+        client_id:driveCfg.cid,
+        scope:'https://www.googleapis.com/auth/drive.file',
+        callback:function(resp){
+          if(resp.access_token){
+            driveAccessToken=resp.access_token;
+            updateDriveStatus();
+            alert('Connected to Google Drive!');
+          }
+        }
+      });
+      gisInited=true;updateDriveStatus();
+    }catch(e){console.error('GIS init err',e);}
+  }
+}
+function driveSignIn(){
+  if(!driveCfg.cid||!driveCfg.key){alert('Please save your Client ID and API Key first.');return;}
+  maybeInitDrive();
+  if(!driveTokenClient){
+    setTimeout(driveSignIn,500);
+    return;
+  }
+  driveTokenClient.requestAccessToken({prompt:'consent'});
+}
+function driveSignOut(){
+  if(driveAccessToken&&typeof google!=='undefined'){
+    google.accounts.oauth2.revoke(driveAccessToken,function(){});
+  }
+  driveAccessToken=null;
+  updateDriveStatus();
+}
+function updateDriveStatus(){
+  const s=document.getElementById('gd-status');
+  const so=document.getElementById('gd-signout-btn');
+  const si=document.getElementById('gd-signin-btn');
+  if(!s)return;
+  if(driveAccessToken){
+    s.textContent='✓ Connected to Drive';s.style.color='var(--gr)';
+    if(so)so.style.display='inline-flex';
+    if(si)si.style.display='none';
+  }else if(driveCfg.cid&&driveCfg.key){
+    s.textContent='⚠ Configured but not signed in';s.style.color='var(--am)';
+    if(so)so.style.display='none';
+    if(si)si.style.display='inline-flex';
+  }else{
+    s.textContent='Not configured';s.style.color='var(--tx3)';
+    if(so)so.style.display='none';
+    if(si)si.style.display='inline-flex';
+  }
+}
+
+// Extract folder ID from a Drive URL
+function extractDriveFolderId(url){
+  if(!url)return '';
+  var m=url.match(/folders\/([a-zA-Z0-9_-]+)/);
+  if(m)return m[1];
+  m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m)return m[1];
+  return '';
+}
+
+function openDriveUploadForProj(pid){
+  const pr=projects.find(p=>p.id===pid);
+  if(!pr){return;}
+  if(!pr.driveUrl){alert('No Drive folder URL set for this project. Edit the project to add one.');return;}
+  if(!driveAccessToken){
+    if(!driveCfg.cid||!driveCfg.key){
+      alert('Google Drive is not configured. Go to Settings to set it up.');
+      nav('settings');return;
+    }
+    alert('Please sign in to Google Drive first (in Settings).');
+    nav('settings');return;
+  }
+  const folderId=extractDriveFolderId(pr.driveUrl);
+  if(!folderId){alert('Could not parse folder ID from Drive URL. Make sure it looks like https://drive.google.com/drive/folders/...');return;}
+  document.getElementById('drv-pid').value=pid;
+  document.getElementById('drv-folder').value=folderId;
+  document.getElementById('drv-target').textContent='Uploading to: '+pr.name+' folder';
+  document.getElementById('drv-files').value='';
+  document.getElementById('drv-progress').textContent='';
+  document.getElementById('mo-drive').classList.add('open');
+}
+
+async function performDriveUpload(){
+  const folderId=document.getElementById('drv-folder').value;
+  const files=document.getElementById('drv-files').files;
+  if(!files||!files.length){alert('Pick at least one file.');return;}
+  if(!driveAccessToken){alert('Sign in to Drive first.');return;}
+  const pe=document.getElementById('drv-progress');
+  let completed=0;
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    pe.textContent='Uploading '+(i+1)+'/'+files.length+': '+file.name+'...';
+    try{
+      const metadata={name:file.name,parents:[folderId]};
+      const form=new FormData();
+      form.append('metadata',new Blob([JSON.stringify(metadata)],{type:'application/json'}));
+      form.append('file',file);
+      const resp=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+        method:'POST',
+        headers:new Headers({Authorization:'Bearer '+driveAccessToken}),
+        body:form
+      });
+      if(resp.ok){completed++;}
+      else{const err=await resp.text();console.error('Upload failed:',err);pe.innerHTML+='<br><span style="color:var(--rd)">Failed: '+file.name+' — '+resp.status+'</span>';}
+    }catch(e){console.error(e);pe.innerHTML+='<br><span style="color:var(--rd)">Error: '+file.name+'</span>';}
+  }
+  pe.innerHTML='✓ Uploaded '+completed+' of '+files.length+' files successfully.';
+  logAct('Uploaded '+completed+' file(s) to Drive');
+}
+
+// ── DATA MANAGEMENT ───────────────────────────────────────────────────────────
+function exportAllData(){
+  const data={projects,tasks,punches,contacts,comms,cos,proposals,invoices,activity,subs,customTrades,labor,tradeOverrides,rates,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='hbp-backup-'+tod()+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importAllData(ev){
+  const file=ev.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!confirm('Import will REPLACE all current data. Continue?'))return;
+      if(data.projects){projects=data.projects;sd('proj',projects);}
+      if(data.tasks){tasks=data.tasks;sd('tasks',tasks);}
+      if(data.punches){punches=data.punches;sd('punch',punches);}
+      if(data.contacts){contacts=data.contacts;sd('contacts',contacts);}
+      if(data.comms){comms=data.comms;sd('comms',comms);}
+      if(data.cos){cos=data.cos;sd('cos',cos);}
+      if(data.proposals){proposals=data.proposals;sd('proposals',proposals);}
+      if(data.invoices){invoices=data.invoices;sd('invoices',invoices);}
+      if(data.activity){activity=data.activity;sd('activity',activity);}
+      if(data.subs){subs=data.subs;sd('subs',subs);}
+      if(data.customTrades){customTrades=data.customTrades;sd('customTrades',customTrades);}
+      if(data.labor){labor=data.labor;sd('labor',labor);}
+      if(data.tradeOverrides){tradeOverrides=data.tradeOverrides;sd('tradeOverrides',tradeOverrides);}
+      if(data.rates){rates=data.rates;sd('rates',rates);}
+      alert('Import complete!');
+      location.reload();
+    }catch(err){alert('Failed to import: '+err.message);}
+  };
+  reader.readAsText(file);
+}
+function resetAll(){
+  ['proj','tasks','punch','contacts','comms','cos','proposals','invoices','activity','subs','customTrades','labor','tradeOverrides','rates'].forEach(k=>{
+    try{localStorage.removeItem('hbp2_'+k);}catch(e){}
+  });
+  alert('All data cleared.');
+  location.reload();
+}
+
+// Wait for Google libs to load before initializing Drive
+let driveInitTimer=setInterval(function(){
+  if(typeof gapi!=='undefined'&&typeof google!=='undefined'&&google.accounts){
+    clearInterval(driveInitTimer);
+    if(driveCfg.cid&&driveCfg.key)maybeInitDrive();
+  }
+},500);
+setTimeout(function(){if(driveInitTimer)clearInterval(driveInitTimer);},10000);
+
+</script>
+</body>
+</html>
