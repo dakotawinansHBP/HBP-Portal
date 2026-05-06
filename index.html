@@ -150,13 +150,39 @@ tr:hover td{background:var(--sur2)}
 .dv{border:none;border-top:1px solid var(--brd);margin:18px 0}
 .ii{padding:5px 8px;border:1px solid var(--brd2);border-radius:5px;font-size:13px;font-family:inherit;color:var(--tx)}
 .ii:focus{outline:none;border-color:var(--ac)}
+
+.trade-sel-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rad2);
+  padding:14px 8px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--tx2);transition:all .15s;line-height:1.8}
+.trade-sel-card:hover{border-color:var(--ac);color:var(--ac);background:var(--acl)}
+.trade-sel-card.active{border-color:var(--ac);background:var(--acl);color:var(--ac)}
+@media(max-width:768px){#trade-selector{grid-template-columns:repeat(3,1fr)!important}}
+
 </style>
 </head>
 <body>
 
 <!-- APP SHELL -->
 <div id="app">
-<div class="layout">
+<!-- LOGIN SCREEN -->
+<div id="ls" style="position:fixed;inset:0;background:#1a4d7c;display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:44px 36px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25)">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9b9890;margin-bottom:6px">Home Builders Plus</div>
+    <div style="font-size:24px;color:#1a1916;margin-bottom:32px;font-family:Georgia,serif;font-style:italic">Project Portal</div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#6b6860;margin-bottom:5px">Username</label>
+      <input id="li-u" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Username" style="width:100%;padding:13px 14px;border:1.5px solid #ccc;border-radius:9px;font-size:16px;-webkit-appearance:none;box-sizing:border-box;font-family:inherit">
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#6b6860;margin-bottom:5px">Password</label>
+      <input id="li-p" type="password" autocomplete="off" placeholder="Password" style="width:100%;padding:13px 14px;border:1.5px solid #ccc;border-radius:9px;font-size:16px;-webkit-appearance:none;box-sizing:border-box;font-family:inherit" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button onclick="doLogin()" style="width:100%;padding:14px;background:#1a4d7c;color:#fff;border:none;border-radius:9px;font-size:16px;font-weight:600;cursor:pointer;-webkit-appearance:none;font-family:inherit">Sign In &rarr;</button>
+    <div id="li-err" style="color:#8a2020;font-size:13px;margin-top:12px;display:none;text-align:center;font-weight:500">Incorrect username or password</div>
+  </div>
+</div>
+
+<div class="layout" id="main-app" style="display:none">
   <!-- SIDEBAR -->
   <div class="sb">
     <div class="sb-top">
@@ -174,6 +200,9 @@ tr:hover td{background:var(--sur2)}
       </div>
       <div class="si" onclick="nav('estimate')">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg>Estimating
+      </div>
+      <div class="si" onclick="nav('tradeest')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V6l3-3h6l3 3v8"/><path d="M6 14v-4h4v4"/><line x1="8" y1="3" x2="8" y2="1"/></svg>Trade Estimator
       </div>
       <div class="si" onclick="nav('schedule')">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/></svg>Schedule
@@ -286,6 +315,68 @@ tr:hover td{background:var(--sur2)}
           <button class="btn btn-p" onclick="saveEstAsProj()">Save as New Project</button>
           <button class="btn" onclick="nav('proposals')">Generate Proposal</button>
           <button class="btn" onclick="if(confirm('Clear all per-trade overrides?')){tradeOverrides={};sd('tradeOverrides',tradeOverrides);calcEst();}">Clear All Overrides</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- TRADE ESTIMATOR -->
+    <div class="pg" id="pg-tradeest">
+      <div class="ph">
+        <div><div class="pt">Trade Estimator</div><div class="ps">Detailed estimates for individual trades — standalone or attached to a project</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="openSavedTradeEsts()">&#128196; Saved Trade Estimates</button>
+          <button class="btn btn-p" onclick="saveTradeEst()">Save Estimate</button>
+        </div>
+      </div>
+
+      <!-- Trade selector cards -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px" id="trade-selector">
+        <div class="trade-sel-card active" onclick="selectTrade('concrete')" id="tsc-concrete">&#127968;<br>Concrete</div>
+        <div class="trade-sel-card" onclick="selectTrade('roofing')" id="tsc-roofing">&#127968;<br>Roofing</div>
+        <div class="trade-sel-card" onclick="selectTrade('electrical')" id="tsc-electrical">&#9889;<br>Electrical</div>
+        <div class="trade-sel-card" onclick="selectTrade('plumbing')" id="tsc-plumbing">&#128163;<br>Plumbing</div>
+        <div class="trade-sel-card" onclick="selectTrade('hvac')" id="tsc-hvac">&#10052;<br>HVAC</div>
+        <div class="trade-sel-card" onclick="selectTrade('framing')" id="tsc-framing">&#127959;<br>Framing</div>
+        <div class="trade-sel-card" onclick="selectTrade('drywall')" id="tsc-drywall">&#9632;<br>Drywall</div>
+        <div class="trade-sel-card" onclick="selectTrade('painting')" id="tsc-painting">&#127912;<br>Painting</div>
+        <div class="trade-sel-card" onclick="selectTrade('excavation')" id="tsc-excavation">&#127949;<br>Excavation</div>
+        <div class="trade-sel-card" onclick="selectTrade('flooring')" id="tsc-flooring">&#9644;<br>Flooring</div>
+      </div>
+
+      <div class="g2">
+        <!-- Left: inputs -->
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="ch"><div class="ct" id="te-trade-title">Concrete Estimator</div></div>
+            <div class="fg" style="margin-bottom:12px">
+              <div class="fd"><label>Client / Job Name</label><input id="te-client" placeholder="Smith Residence"></div>
+              <div class="fd"><label>Attach to Project</label><select id="te-proj"><option value="">-- Standalone --</option></select></div>
+            </div>
+            <div id="te-inputs"></div>
+            <div class="fd" style="margin-top:12px"><label>Markup %</label><input type="number" id="te-markup" value="15" oninput="calcTradeEst()"></div>
+            <div class="fd" style="margin-top:10px"><label>Notes</label><textarea id="te-notes" rows="2" style="width:100%;padding:8px;border:1px solid var(--brd2);border-radius:var(--rad);font-size:13px;font-family:inherit"></textarea></div>
+          </div>
+        </div>
+        <!-- Right: results -->
+        <div>
+          <div class="g2" id="te-metrics" style="margin-bottom:12px"></div>
+          <div class="card">
+            <div class="ch"><div class="ct">Line Items</div></div>
+            <table>
+              <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Rate</th><th style="text-align:right">Total</th></tr></thead>
+              <tbody id="te-lines"></tbody>
+              <tfoot>
+                <tr class="tfoot"><td colspan="4" style="text-align:right">Subtotal</td><td style="text-align:right" id="te-sub">—</td></tr>
+                <tr class="tfoot"><td colspan="4" style="text-align:right" id="te-mkl">+ 15% Markup</td><td style="text-align:right" id="te-mka">—</td></tr>
+                <tr class="tfoot"><td colspan="4" style="text-align:right;font-size:14px">Total</td><td style="text-align:right;font-size:14px;color:var(--ac)" id="te-grand">—</td></tr>
+              </tfoot>
+            </table>
+            <div class="br">
+              <button class="btn btn-p" onclick="saveTradeEst()">Save Estimate</button>
+              <button class="btn" onclick="printTradeEst()">&#128438; Print</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -517,6 +608,36 @@ tr:hover td{background:var(--sur2)}
 </div><!-- /app -->
 
 <!-- MODALS -->
+
+
+<!-- SAVE TRADE ESTIMATE MODAL -->
+<div class="mo" id="mo-save-te">
+  <div class="md">
+    <div class="md-ti">Save Trade Estimate</div>
+    <div class="fg">
+      <div class="fd full"><label>Estimate Name</label><input id="ste-name" placeholder="Smith Concrete - Driveway"></div>
+      <div class="fd"><label>Version</label><input id="ste-ver" placeholder="v1"></div>
+    </div>
+    <div class="md-ft">
+      <button class="btn" onclick="closeM('mo-save-te')">Cancel</button>
+      <button class="btn btn-p" onclick="confirmSaveTradeEst()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVED TRADE ESTIMATES MODAL -->
+<div class="mo" id="mo-saved-te">
+  <div class="md lg">
+    <div class="md-ti">Saved Trade Estimates</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Name</th><th>Trade</th><th>Client</th><th>Total</th><th>Date</th><th></th></tr></thead>
+        <tbody id="saved-te-tb"></tbody>
+      </table>
+    </div>
+    <div class="md-ft"><button class="btn" onclick="closeM('mo-saved-te')">Close</button></div>
+  </div>
+</div>
 
 <div class="mo" id="mo-sub">
   <div class="md">
@@ -813,12 +934,7 @@ if(typeof firebase !== 'undefined' && !window._fbInit){
 
 <script>
 // ── AUTO-INIT (no login required) ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',function(){
-  setTimeout(function(){
-    try{init();}catch(e){console.error(e);}
-    if(typeof startSync==='function')setTimeout(startSync,1000);
-  },50);
-});
+// App initializes via doLogin()
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
 function ld(k,d){
@@ -834,21 +950,38 @@ let projects=ld('proj',[]),tasks=ld('tasks',[]),punches=ld('punch',[]),contacts=
     labor=ld('labor',[]),tradeOverrides=ld('tradeOverrides',{}),driveCfg=ld('driveCfg',{cid:'',key:''});
 
 const DR={
-  plans_psf:{l:'Plans',u:'per sq ft',v:.25,t:'psf'},permits_psf:{l:'Permits',u:'per sq ft',v:.43,t:'psf'},
-  electrical_psf:{l:'Electrical',u:'per sq ft',v:3.25,t:'psf'},hvac_psf:{l:'HVAC',u:'per sq ft',v:3.25,t:'psf'},
-  insulation_psf:{l:'Insulation',u:'per sq ft',v:1.02,t:'psf'},drywall_psf:{l:'Drywall',u:'per sq ft',v:1.88,t:'psf'},
-  framing_psf:{l:'Framing Labor',u:'per sq ft',v:2.52,t:'psf'},trim_psf:{l:'Trim Labor',u:'per sq ft',v:2.0,t:'psf'},
-  lumber_psf:{l:'Lumber (Rough)',u:'per sq ft',v:15.0,t:'psf'},painting_psf:{l:'Painting',u:'per sq ft',v:3.0,t:'psf'},
-  conc_lab:{l:'Concrete Labor',u:'per sq ft',v:3.0,t:'psf'},conc_mat:{l:'Concrete Materials',u:'per sq ft',v:3.5,t:'psf'},
-  layout:{l:'Layout / Survey',u:'flat fee',v:300,t:'flat'},excavation:{l:'Excavation',u:'flat fee',v:6920,t:'flat'},
-  grade:{l:'Grade / Seed / Straw',u:'flat fee',v:2000,t:'flat'},foundation:{l:'Foundation',u:'flat fee',v:11162,t:'flat'},
-  garage_door:{l:'Garage Door',u:'flat fee',v:2600,t:'flat'},plumbing:{l:'Plumbing',u:'flat fee',v:13000,t:'flat'},
-  roofing:{l:'Roofing',u:'flat fee',v:1500,t:'flat'},ext_cov:{l:'Exterior Covering',u:'flat fee',v:10400,t:'flat'},
-  appliances:{l:'Appliances',u:'flat fee',v:3250,t:'flat'},mirrors:{l:'Mirrors',u:'flat fee',v:600,t:'flat'},
-  cabinets:{l:'Cabinets & Countertops',u:'flat fee',v:10000,t:'flat'},cleanup:{l:'Clean Up',u:'flat fee',v:2600,t:'flat'},
-  flooring:{l:'Floor Covering',u:'flat fee',v:4500,t:'flat'},hardware:{l:'Hardware Finish',u:'flat fee',v:900,t:'flat'},
-  water_line:{l:'Water Line/Meter',u:'flat fee',v:1700,t:'flat'},shelving:{l:'Shelving',u:'flat fee',v:900,t:'flat'},
-  temp:{l:'Temp Facilities',u:'flat fee',v:600,t:'flat'},insurance:{l:'Insurance',u:'flat fee',v:600,t:'flat'}
+  // Per Sq Ft — Charlestown IN / Southern Indiana 2025 market
+  plans_psf:     {l:'Plans',              u:'per sq ft', v:0.28,  t:'psf'},
+  permits_psf:   {l:'Permits',            u:'per sq ft', v:0.48,  t:'psf'},
+  electrical_psf:{l:'Electrical',         u:'per sq ft', v:4.25,  t:'psf'},
+  hvac_psf:      {l:'HVAC',              u:'per sq ft', v:4.00,  t:'psf'},
+  insulation_psf:{l:'Insulation',         u:'per sq ft', v:1.35,  t:'psf'},
+  drywall_psf:   {l:'Drywall',           u:'per sq ft', v:2.40,  t:'psf'},
+  framing_psf:   {l:'Framing Labor',     u:'per sq ft', v:3.75,  t:'psf'},
+  trim_psf:      {l:'Trim Labor',        u:'per sq ft', v:2.35,  t:'psf'},
+  lumber_psf:    {l:'Lumber (Rough)',    u:'per sq ft', v:17.50, t:'psf'},
+  painting_psf:  {l:'Painting',          u:'per sq ft', v:3.60,  t:'psf'},
+  conc_lab:      {l:'Concrete Labor',    u:'per sq ft', v:3.75,  t:'psf'},
+  conc_mat:      {l:'Concrete Materials',u:'per sq ft', v:4.25,  t:'psf'},
+  // Flat fees — Charlestown IN / Southern Indiana 2025 market
+  layout:        {l:'Layout / Survey',       u:'flat fee', v:375,   t:'flat'},
+  excavation:    {l:'Excavation',            u:'flat fee', v:7800,  t:'flat'},
+  grade:         {l:'Grade / Seed / Straw',  u:'flat fee', v:2200,  t:'flat'},
+  foundation:    {l:'Foundation',            u:'flat fee', v:12800, t:'flat'},
+  garage_door:   {l:'Garage Door',           u:'flat fee', v:3000,  t:'flat'},
+  plumbing:      {l:'Plumbing',              u:'flat fee', v:15000, t:'flat'},
+  roofing:       {l:'Roofing',               u:'flat fee', v:2000,  t:'flat'},
+  ext_cov:       {l:'Exterior Covering',     u:'flat fee', v:11800, t:'flat'},
+  appliances:    {l:'Appliances',            u:'flat fee', v:3600,  t:'flat'},
+  mirrors:       {l:'Mirrors',               u:'flat fee', v:700,   t:'flat'},
+  cabinets:      {l:'Cabinets & Countertops',u:'flat fee', v:19500, t:'flat'},
+  cleanup:       {l:'Clean Up',              u:'flat fee', v:2800,  t:'flat'},
+  flooring:      {l:'Floor Covering',        u:'flat fee', v:5200,  t:'flat'},
+  hardware:      {l:'Hardware Finish',       u:'flat fee', v:1000,  t:'flat'},
+  water_line:    {l:'Water Line/Meter',      u:'flat fee', v:2000,  t:'flat'},
+  shelving:      {l:'Shelving',              u:'flat fee', v:1000,  t:'flat'},
+  temp:          {l:'Temp Facilities',       u:'flat fee', v:700,   t:'flat'},
+  insurance:     {l:'Insurance',             u:'flat fee', v:750,   t:'flat'}
 };
 let rates=ld('rates',DR);
 
@@ -1671,7 +1804,15 @@ function printProp(id){
   const p=proposals.find(x=>x.id===id);
   const pr=p?projects.find(x=>x.id===p.project):null;
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>Proposal</title><style>body{font-family:Georgia,serif;padding:60px;font-size:13px;line-height:1.9;color:#1a1916}h1{font-size:22px;font-style:italic}h2{font-size:13px;font-weight:bold;margin-top:24px;margin-bottom:6px;border-bottom:1px solid #e0e0d8;padding-bottom:3px;font-family:-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase}.tot{font-size:18px;font-weight:bold;border:2px solid #1a4d7c;padding:16px 20px;margin-top:32px;text-align:right;color:#1a4d7c}.sig{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:60px}.sig div{border-top:1px solid #888;padding-top:8px;font-size:12px;color:#888}</style></head><body>
+  w.document.write(`<!DOCTYPE html><html><head><title>Proposal</title><style>body{font-family:Georgia,serif;padding:60px;font-size:13px;line-height:1.9;color:#1a1916}h1{font-size:22px;font-style:italic}h2{font-size:13px;font-weight:bold;margin-top:24px;margin-bottom:6px;border-bottom:1px solid #e0e0d8;padding-bottom:3px;font-family:-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase}.tot{font-size:18px;font-weight:bold;border:2px solid #1a4d7c;padding:16px 20px;margin-top:32px;text-align:right;color:#1a4d7c}.sig{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:60px}.sig div{border-top:1px solid #888;padding-top:8px;font-size:12px;color:#888}
+.trade-sel-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rad2);
+  padding:14px 8px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--tx2);transition:all .15s;line-height:1.8}
+.trade-sel-card:hover{border-color:var(--ac);color:var(--ac);background:var(--acl)}
+.trade-sel-card.active{border-color:var(--ac);background:var(--acl);color:var(--ac)}
+@media(max-width:768px){#trade-selector{grid-template-columns:repeat(3,1fr)!important}}
+
+</style></head><body>
 <div style="display:flex;justify-content:space-between;margin-bottom:36px">
 <div><div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#aaa;margin-bottom:6px">Home Builders Plus</div><h1>Contract Proposal</h1><div style="color:#888;font-size:12px;font-family:-apple-system,sans-serif">9515 Marion Martin Road · Charlestown, IN 47111<br>(502) 643-4855</div></div>
 <div style="text-align:right;font-size:13px;color:#888;font-family:-apple-system,sans-serif"><div>Date: ${p?.date||tod()}</div><div style="margin-top:4px">Project: ${pr?.name||'—'}</div><div>Client: ${p?.client||'—'}</div>${pr?.addr?`<div>${pr.addr}</div>`:''}</div>
@@ -1719,7 +1860,15 @@ function markPaid(id){const inv=invoices.find(i=>i.id===id);if(inv){inv.status='
 function printInv(id){
   const inv=invoices.find(i=>i.id===id);const pr=inv?projects.find(p=>p.id===inv.project):null;
   const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>Invoice</title><style>body{font-family:-apple-system,sans-serif;padding:60px;font-size:13px;color:#1a1916}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888}</style></head><body>
+  w.document.write(`<!DOCTYPE html><html><head><title>Invoice</title><style>body{font-family:-apple-system,sans-serif;padding:60px;font-size:13px;color:#1a1916}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888}
+.trade-sel-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rad2);
+  padding:14px 8px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;
+  color:var(--tx2);transition:all .15s;line-height:1.8}
+.trade-sel-card:hover{border-color:var(--ac);color:var(--ac);background:var(--acl)}
+.trade-sel-card.active{border-color:var(--ac);background:var(--acl);color:var(--ac)}
+@media(max-width:768px){#trade-selector{grid-template-columns:repeat(3,1fr)!important}}
+
+</style></head><body>
 <div style="display:flex;justify-content:space-between;margin-bottom:40px">
 <div><div style="font-weight:700;font-size:18px;letter-spacing:.04em">HOME BUILDERS PLUS</div><div style="color:#888;margin-top:6px;line-height:1.8;font-size:12px">9515 Marion Martin Road<br>Charlestown, IN 47111<br>(502) 643-4855</div></div>
 <div style="text-align:right"><div style="font-size:22px;font-weight:700;color:#1a4d7c">DRAW INVOICE #${inv?.draw}</div><div style="color:#888;margin-top:8px;font-size:12px;line-height:1.8">Date: ${inv?.date}<br>Project: ${pr?.name||'—'}<br>Client: ${inv?.client}<br>Address: ${pr?.addr||'—'}</div></div>
@@ -2128,6 +2277,443 @@ let driveInitTimer=setInterval(function(){
   }
 },500);
 setTimeout(function(){if(driveInitTimer)clearInterval(driveInitTimer);},10000);
+
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+var USERS = {"HBPADMIN": "4663"};
+var CU = null;
+
+function doLogin(){
+  var u = (document.getElementById('li-u').value || '').replace(/\s/g, '');
+  var p = (document.getElementById('li-p').value || '').replace(/\s/g, '');
+  var err = document.getElementById('li-err');
+  // Case-insensitive username check
+  var matchKey = Object.keys(USERS).find(function(k){ return k.toLowerCase() === u.toLowerCase(); });
+  if(matchKey && USERS[matchKey] === p){
+    CU = {username: matchKey};
+    document.getElementById('ls').style.display = 'none';
+    document.getElementById('main-app').style.display = 'flex';
+    err.style.display = 'none';
+    try{ init(); } catch(e){ console.error(e); }
+    if(typeof startSync === 'function') setTimeout(startSync, 1000);
+  } else {
+    err.style.display = 'block';
+  }
+}
+
+function doLogout(){
+  CU = null;
+  document.getElementById('ls').style.display = 'flex';
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('li-u').value = '';
+  document.getElementById('li-p').value = '';
+  document.getElementById('li-err').style.display = 'none';
+}
+
+document.addEventListener('keydown', function(e){
+  var ls = document.getElementById('ls');
+  if(e.key === 'Enter' && ls && ls.style.display !== 'none') doLogin();
+});
+
+
+// ── TRADE ESTIMATOR ───────────────────────────────────────────────────────────
+var currentTrade = 'concrete';
+var savedTradeEsts = JSON.parse(localStorage.getItem('hbp2_tradeEsts') || '[]');
+
+// Trade definitions - each has line items with qty, unit, rate inputs
+var TRADES = {
+  concrete: {
+    title: 'Concrete Estimator',
+    items: [
+      {id:'drv_sqft',  label:'Driveway',         qty:960,  unit:'sq ft', rate:8.00, notes:'brushed finish — S.Indiana avg $7-$10/sqft'},
+      {id:'gar_sqft',  label:'Garage Floor',      qty:440,  unit:'sq ft', rate:7.50, notes:'slick finish — S.Indiana avg'},
+      {id:'porch_sqft',label:'Porch / Sidewalk',  qty:90,   unit:'sq ft', rate:6.50, notes:'brushed finish'},
+      {id:'patio_sqft',label:'Patio',             qty:60,   unit:'sq ft', rate:8.00, notes:'brushed finish'},
+      {id:'apron',     label:'Apron',             qty:1,    unit:'ea',    rate:950,  notes:''},
+      {id:'steps',     label:'Concrete Steps',    qty:0,    unit:'ea',    rate:650,  notes:''},
+      {id:'retaining', label:'Retaining Wall',    qty:0,    unit:'ln ft', rate:55,   notes:''},
+      {id:'conc_mat',  label:'Extra Materials',   qty:0,    unit:'yard',  rate:165,  notes:''},
+      {id:'pump',      label:'Pump Truck',        qty:0,    unit:'ea',    rate:800,  notes:'if needed'},
+    ]
+  },
+  roofing: {
+    title: 'Roofing Estimator',
+    items: [
+      {id:'roof_sqft', label:'Shingles (Oakridge)',qty:2000, unit:'sq ft', rate:2.60, notes:'Owens Corning Oakridge — S.Indiana avg'},
+      {id:'felt',      label:'Felt / Underlayment',qty:20,   unit:'square',rate:35,   notes:''},
+      {id:'ridge',     label:'Ridge Cap',          qty:1,    unit:'ea',    rate:180,  notes:''},
+      {id:'valley',    label:'Valley Flashing',    qty:0,    unit:'ln ft', rate:8,    notes:''},
+      {id:'drip_edge', label:'Drip Edge',          qty:200,  unit:'ln ft', rate:2.50, notes:''},
+      {id:'gutters',   label:'Gutters (5")',        qty:160,  unit:'ln ft', rate:8,    notes:'aluminum'},
+      {id:'downspouts',label:'Downspouts',         qty:4,    unit:'ea',    rate:65,   notes:''},
+      {id:'decking',   label:'Decking / Sheathing',qty:0,    unit:'sq ft', rate:1.80, notes:'if replacing'},
+      {id:'skylight',  label:'Skylights',          qty:0,    unit:'ea',    rate:850,  notes:''},
+      {id:'tearoff',   label:'Tear-Off / Disposal',qty:0,    unit:'square',rate:75,   notes:'existing roof'},
+    ]
+  },
+  electrical: {
+    title: 'Electrical Estimator',
+    items: [
+      {id:'service',   label:'Service Panel (200A)',qty:1,   unit:'ea',    rate:3200, notes:'200A service — S.Indiana avg'},
+      {id:'circuits',  label:'Branch Circuits',    qty:30,   unit:'ea',    rate:95,   notes:''},
+      {id:'outlets',   label:'Outlets / Switches', qty:40,   unit:'ea',    rate:45,   notes:''},
+      {id:'lights',    label:'Light Fixtures',     qty:20,   unit:'ea',    rate:120,  notes:'rough + trim'},
+      {id:'fans',      label:'Ceiling Fans',       qty:3,    unit:'ea',    rate:180,  notes:''},
+      {id:'smoke',     label:'Smoke / CO Detectors',qty:6,  unit:'ea',    rate:65,   notes:''},
+      {id:'gfci',      label:'GFCI Outlets',       qty:8,    unit:'ea',    rate:75,   notes:'bath/kitchen'},
+      {id:'exterior_e',label:'Exterior Outlets',   qty:4,    unit:'ea',    rate:95,   notes:''},
+      {id:'panel_sub', label:'Sub Panel',          qty:0,    unit:'ea',    rate:1200, notes:'if needed'},
+      {id:'ev_charger',label:'EV Charger Circuit', qty:0,    unit:'ea',    rate:650,  notes:''},
+      {id:'low_volt',  label:'Low Voltage / Data', qty:0,    unit:'ea',    rate:95,   notes:''},
+    ]
+  },
+  plumbing: {
+    title: 'Plumbing Estimator',
+    items: [
+      {id:'bath_full',  label:'Full Bath Rough-In', qty:2,   unit:'ea',    rate:2000, notes:'S.Indiana avg'},
+      {id:'bath_half',  label:'Half Bath Rough-In', qty:1,   unit:'ea',    rate:1000, notes:'S.Indiana avg'},
+      {id:'kitchen',    label:'Kitchen Plumbing',   qty:1,   unit:'ea',    rate:1400, notes:'S.Indiana avg'},
+      {id:'laundry',    label:'Laundry Hook-Up',    qty:1,   unit:'ea',    rate:450,  notes:''},
+      {id:'water_heat', label:'Water Heater',       qty:1,   unit:'ea',    rate:1600, notes:'50 gal — S.Indiana avg'},
+      {id:'hose_bib',   label:'Hose Bibs',          qty:2,   unit:'ea',    rate:150,  notes:''},
+      {id:'sump',       label:'Sump Pump',          qty:0,   unit:'ea',    rate:850,  notes:''},
+      {id:'softener',   label:'Water Softener Loop',qty:0,   unit:'ea',    rate:300,  notes:''},
+      {id:'tub_shower', label:'Tub / Shower Units', qty:2,   unit:'ea',    rate:650,  notes:'install only'},
+      {id:'fixtures_p', label:'Fixture Trim-Out',   qty:1,   unit:'ea',    rate:1200, notes:'all fixtures'},
+      {id:'main_line',  label:'Water Main / Meter', qty:1,   unit:'ea',    rate:1700, notes:''},
+    ]
+  },
+  hvac: {
+    title: 'HVAC Estimator',
+    items: [
+      {id:'tons',       label:'Condenser Unit',     qty:3,   unit:'ton',   rate:2000, notes:'S.Indiana avg'},
+      {id:'air_handler',label:'Air Handler / Furnace',qty:1, unit:'ea',    rate:2400, notes:''},
+      {id:'ductwork',   label:'Ductwork (trunk)',   qty:1,   unit:'system',rate:3800, notes:''},
+      {id:'flex_duct',  label:'Flex Duct Runs',     qty:12,  unit:'ea',    rate:180,  notes:''},
+      {id:'registers',  label:'Registers / Grilles',qty:14,  unit:'ea',    rate:45,   notes:''},
+      {id:'returns',    label:'Return Air Grilles', qty:4,   unit:'ea',    rate:95,   notes:''},
+      {id:'thermostat', label:'Thermostat (smart)', qty:1,   unit:'ea',    rate:350,  notes:''},
+      {id:'humidifier', label:'Whole-House Humidifier',qty:0,unit:'ea',    rate:750,  notes:''},
+      {id:'air_clean',  label:'Air Cleaner / Filter',qty:0,  unit:'ea',    rate:600,  notes:''},
+      {id:'linesets',   label:'Refrigerant Line Set',qty:1,  unit:'ea',    rate:400,  notes:''},
+    ]
+  },
+  framing: {
+    title: 'Framing / Lumber Estimator',
+    items: [
+      {id:'lumber_ff',  label:'First Floor Lumber', qty:1800, unit:'sq ft', rate:17.50, notes:'rough lumber installed — S.Indiana 2025'},
+      {id:'lumber_sf',  label:'Second Floor Lumber',qty:0,    unit:'sq ft', rate:17.50, notes:''},
+      {id:'lumber_gar', label:'Garage Lumber',      qty:440,  unit:'sq ft', rate:5.00, notes:''},
+      {id:'sheathing',  label:'Wall Sheathing',     qty:1800, unit:'sq ft', rate:1.80, notes:'OSB'},
+      {id:'roof_deck',  label:'Roof Decking',       qty:2200, unit:'sq ft', rate:1.80, notes:'OSB'},
+      {id:'lam_beam',   label:'LVL / Lam Beams',   qty:0,    unit:'ln ft', rate:18,   notes:''},
+      {id:'columns',    label:'Steel Columns',      qty:0,    unit:'ea',    rate:280,  notes:''},
+      {id:'trusses',    label:'Roof Trusses',       qty:0,    unit:'ea',    rate:185,  notes:'engineered'},
+      {id:'fram_labor', label:'Framing Labor',      qty:1800, unit:'sq ft', rate:3.75, notes:'S.Indiana avg'},
+      {id:'trim_labor', label:'Trim Carpentry Labor',qty:1800,unit:'sq ft', rate:2.35, notes:'S.Indiana avg'},
+      {id:'hardware_f', label:'Hardware / Fasteners',qty:1,   unit:'lot',   rate:850,  notes:''},
+    ]
+  },
+  drywall: {
+    title: 'Drywall Estimator',
+    items: [
+      {id:'dw_hang',    label:'Hang Drywall',       qty:1800, unit:'sq ft', rate:1.10, notes:'1/2" standard'},
+      {id:'dw_finish',  label:'Tape & Finish',      qty:1800, unit:'sq ft', rate:1.00, notes:'level 4'},
+      {id:'dw_text',    label:'Texture (ceilings)', qty:1800, unit:'sq ft', rate:0.45, notes:'orange peel'},
+      {id:'dw_mat',     label:'Drywall Material',   qty:1800, unit:'sq ft', rate:0.55, notes:'board + screws'},
+      {id:'moisture',   label:'Moisture Board (bath)',qty:200,unit:'sq ft', rate:1.20, notes:''},
+      {id:'fire_dw',    label:'Fire-Rated Board',   qty:0,    unit:'sq ft', rate:1.10, notes:'garage wall'},
+      {id:'dw_corner',  label:'Corner Bead',        qty:0,    unit:'ln ft', rate:1.50, notes:''},
+      {id:'dumpster',   label:'Dumpster / Cleanup', qty:1,    unit:'ea',    rate:450,  notes:''},
+    ]
+  },
+  painting: {
+    title: 'Painting Estimator',
+    items: [
+      {id:'int_walls',  label:'Interior Walls',     qty:1800, unit:'sq ft', rate:1.40, notes:'2 coats'},
+      {id:'int_ceil',   label:'Interior Ceilings',  qty:1800, unit:'sq ft', rate:0.95, notes:'1 coat'},
+      {id:'int_trim',   label:'Interior Trim',      qty:1800, unit:'sq ft', rate:0.80, notes:'doors, base, case'},
+      {id:'doors_paint',label:'Doors (paint grade)',qty:12,   unit:'ea',    rate:85,   notes:'2 coats'},
+      {id:'garage_p',   label:'Garage Interior',    qty:440,  unit:'sq ft', rate:0.60, notes:''},
+      {id:'ext_body',   label:'Exterior Body',      qty:0,    unit:'sq ft', rate:1.80, notes:''},
+      {id:'ext_trim_p', label:'Exterior Trim',      qty:0,    unit:'ln ft', rate:2.20, notes:''},
+      {id:'primer',     label:'Primer / Sealer',    qty:1,    unit:'lot',   rate:650,  notes:''},
+      {id:'paint_mat',  label:'Paint Material',     qty:1,    unit:'lot',   rate:1500, notes:'final grade'},
+    ]
+  },
+  excavation: {
+    title: 'Excavation / Grading Estimator',
+    items: [
+      {id:'excavate',   label:'Foundation Excavation',qty:1,  unit:'lot',   rate:5500, notes:'S.Indiana avg'},
+      {id:'backfill',   label:'Backfill & Compact',  qty:1,   unit:'lot',   rate:2200, notes:''},
+      {id:'topsoil',    label:'Topsoil (import)',    qty:0,    unit:'yard',  rate:45,   notes:''},
+      {id:'grading',    label:'Final Grading',       qty:1,   unit:'lot',   rate:1200, notes:''},
+      {id:'seed_straw', label:'Seed & Straw',        qty:1,   unit:'lot',   rate:800,  notes:''},
+      {id:'stone_fill', label:'#8 Stone Backfill',   qty:0,   unit:'ton',   rate:42,   notes:''},
+      {id:'drain_tile', label:'Drain Tile',          qty:0,   unit:'ln ft', rate:12,   notes:''},
+      {id:'driveway_gr',label:'Driveway Gravel Base',qty:0,   unit:'ton',   rate:38,   notes:''},
+      {id:'hauling',    label:'Dirt Hauling / Dump', qty:0,   unit:'load',  rate:350,  notes:''},
+      {id:'bobcat',     label:'Bobcat / Skid Steer', qty:0,   unit:'day',   rate:650,  notes:''},
+    ]
+  },
+  flooring: {
+    title: 'Flooring Estimator',
+    items: [
+      {id:'carpet',     label:'Carpet',             qty:800,  unit:'sq ft', rate:4.25, notes:'mid-grade + pad — S.Indiana avg'},
+      {id:'lvp',        label:'LVP / Luxury Vinyl', qty:600,  unit:'sq ft', rate:6.50, notes:'material + labor — S.Indiana avg'},
+      {id:'tile_floor', label:'Ceramic / Porcelain Tile',qty:200,unit:'sq ft',rate:9.50,notes:'S.Indiana avg'},
+      {id:'hardwood',   label:'Hardwood',           qty:0,    unit:'sq ft', rate:12.00,notes:''},
+      {id:'laminate',   label:'Laminate',           qty:0,    unit:'sq ft', rate:5.25, notes:''},
+      {id:'fl_prep',    label:'Floor Prep / Leveling',qty:1,  unit:'lot',   rate:450,  notes:''},
+      {id:'transitions',label:'Transitions / Trim', qty:1,    unit:'lot',   rate:280,  notes:''},
+      {id:'tile_bath',  label:'Bath Tile (walls)',  qty:0,    unit:'sq ft', rate:9.50, notes:''},
+      {id:'schluter',   label:'Schluter / Metal Edge',qty:0,  unit:'ln ft', rate:8,    notes:''},
+      {id:'fl_demo',    label:'Floor Demo / Remove', qty:0,   unit:'sq ft', rate:1.20, notes:'existing floor'},
+    ]
+  }
+};
+
+function selectTrade(trade){
+  currentTrade = trade;
+  // Update card active states
+  document.querySelectorAll('.trade-sel-card').forEach(c => c.classList.remove('active'));
+  var card = document.getElementById('tsc-' + trade);
+  if(card) card.classList.add('active');
+  // Update title
+  var t = TRADES[trade];
+  document.getElementById('te-trade-title').textContent = t.title;
+  // Render inputs
+  renderTradeInputs(trade);
+  calcTradeEst();
+}
+
+function renderTradeInputs(trade){
+  var t = TRADES[trade];
+  var html = t.items.map(function(item){
+    return '<div style="display:grid;grid-template-columns:1fr 80px 80px 90px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">' +
+      '<div><div style="font-size:13px;font-weight:500">' + item.label + '</div>' +
+      (item.notes ? '<div style="font-size:11px;color:var(--tx3)">' + item.notes + '</div>' : '') + '</div>' +
+      '<div><input type="number" id="tq-' + item.id + '" value="' + item.qty + '" min="0" style="width:100%;padding:6px;border:1px solid var(--brd2);border-radius:6px;font-size:13px;text-align:right" oninput="calcTradeEst()"></div>' +
+      '<div style="font-size:11px;color:var(--tx2);text-align:center">' + item.unit + '</div>' +
+      '<div><input type="number" id="tr-' + item.id + '" value="' + item.rate + '" min="0" step="0.01" style="width:100%;padding:6px;border:1px solid var(--brd2);border-radius:6px;font-size:13px;text-align:right" oninput="calcTradeEst()"></div>' +
+    '</div>';
+  }).join('');
+  // Add header row
+  html = '<div style="display:grid;grid-template-columns:1fr 80px 80px 90px;gap:8px;padding:6px 0;border-bottom:2px solid var(--brd)">' +
+    '<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em">Item</div>' +
+    '<div style="font-size:11px;font-weight:700;color:var(--tx2);text-align:right">Qty</div>' +
+    '<div style="font-size:11px;font-weight:700;color:var(--tx2);text-align:center">Unit</div>' +
+    '<div style="font-size:11px;font-weight:700;color:var(--tx2);text-align:right">Rate ($)</div>' +
+  '</div>' + html;
+  document.getElementById('te-inputs').innerHTML = html;
+}
+
+function calcTradeEst(){
+  var trade = TRADES[currentTrade];
+  if(!trade) return;
+  var mk = (+document.getElementById('te-markup').value || 15) / 100;
+  var lines = [];
+  var sub = 0;
+  trade.items.forEach(function(item){
+    var qEl = document.getElementById('tq-' + item.id);
+    var rEl = document.getElementById('tr-' + item.id);
+    if(!qEl || !rEl) return;
+    var qty = +qEl.value || 0;
+    var rate = +rEl.value || 0;
+    if(qty === 0) return; // skip zero qty
+    var total = qty * rate;
+    sub += total;
+    lines.push({label: item.label, qty: qty, unit: item.unit, rate: rate, total: total});
+  });
+  var mka = sub * mk;
+  var grand = sub + mka;
+
+  // Metrics
+  document.getElementById('te-metrics').innerHTML =
+    '<div class="stat"><div class="sl">Line Items</div><div class="sv blue">' + lines.length + '</div></div>' +
+    '<div class="stat"><div class="sl">Subtotal</div><div class="sv">' + fmt(sub) + '</div></div>' +
+    '<div class="stat"><div class="sl">Markup</div><div class="sv amber">' + fmt(mka) + '</div></div>' +
+    '<div class="stat"><div class="sl">Total Bid</div><div class="sv green">' + fmt(grand) + '</div></div>';
+
+  // Line items table
+  document.getElementById('te-lines').innerHTML = lines.length ? lines.map(function(l){
+    return '<tr><td style="font-weight:500">' + l.label + '</td>' +
+      '<td style="color:var(--tx2)">' + l.qty.toLocaleString() + '</td>' +
+      '<td style="color:var(--tx2)">' + l.unit + '</td>' +
+      '<td>$' + l.rate.toFixed(2) + '</td>' +
+      '<td style="text-align:right;font-weight:500">' + fmtd(l.total) + '</td></tr>';
+  }).join('') : '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--tx3)">Enter quantities above to see line items</td></tr>';
+
+  document.getElementById('te-sub').textContent = fmtd(sub);
+  document.getElementById('te-mkl').textContent = '+ ' + Math.round(mk*100) + '% Markup';
+  document.getElementById('te-mka').textContent = fmtd(mka);
+  document.getElementById('te-grand').textContent = fmtd(grand);
+
+  // Store for saving
+  window._lastTradeLines = lines;
+  window._lastTradeGrand = grand;
+  window._lastTradeSub = sub;
+}
+
+function saveTradeEst(){
+  var client = document.getElementById('te-client').value || 'Estimate';
+  document.getElementById('ste-name').value = client + ' - ' + TRADES[currentTrade].title;
+  document.getElementById('ste-ver').value = 'v1';
+  document.getElementById('mo-save-te').classList.add('open');
+}
+
+function confirmSaveTradeEst(){
+  var projId = document.getElementById('te-proj').value;
+  var est = {
+    id: uid(),
+    name:    document.getElementById('ste-name').value || 'Trade Estimate',
+    version: document.getElementById('ste-ver').value || 'v1',
+    trade:   currentTrade,
+    tradeTitle: TRADES[currentTrade].title,
+    client:  document.getElementById('te-client').value,
+    projId:  projId,
+    projName: projId ? (projects.find(function(p){return p.id===projId;})||{}).name||'' : '',
+    markup:  +document.getElementById('te-markup').value || 15,
+    notes:   document.getElementById('te-notes').value,
+    date:    tod(),
+    lines:   window._lastTradeLines || [],
+    grand:   window._lastTradeGrand || 0,
+    sub:     window._lastTradeSub || 0,
+    // Save all qty/rate inputs
+    inputs:  (function(){
+      var out = {};
+      TRADES[currentTrade].items.forEach(function(item){
+        var q = document.getElementById('tq-'+item.id);
+        var r = document.getElementById('tr-'+item.id);
+        if(q && r) out[item.id] = {qty: +q.value, rate: +r.value};
+      });
+      return out;
+    })()
+  };
+
+  // If attached to project, add to project's trade estimates
+  if(projId){
+    var proj = projects.find(function(p){return p.id===projId;});
+    if(proj){
+      if(!proj.tradeEsts) proj.tradeEsts = [];
+      proj.tradeEsts.push(est);
+      sd('proj', projects);
+    }
+  }
+
+  savedTradeEsts.unshift(est);
+  if(savedTradeEsts.length > 100) savedTradeEsts.pop();
+  localStorage.setItem('hbp2_tradeEsts', JSON.stringify(savedTradeEsts));
+  if(window._db) window._db.collection('hbp_data').doc('tradeEsts').set({d: JSON.stringify(savedTradeEsts)}).catch(function(){});
+  logAct('Trade estimate saved: ' + est.name + ' — ' + fmtd(est.grand));
+  closeM('mo-save-te');
+  alert('Saved: ' + est.name);
+}
+
+function openSavedTradeEsts(){
+  var tb = document.getElementById('saved-te-tb');
+  var tradeIcons = {concrete:'&#127968;',roofing:'&#127968;',electrical:'&#9889;',plumbing:'&#128163;',
+    hvac:'&#10052;',framing:'&#127959;',drywall:'&#9632;',painting:'&#127912;',
+    excavation:'&#127949;',flooring:'&#9644;'};
+  tb.innerHTML = savedTradeEsts.length ? savedTradeEsts.map(function(e){
+    return '<tr>' +
+      '<td style="font-weight:500">' + e.name + ' <span style="font-size:11px;color:var(--tx3)">' + (e.version||'') + '</span></td>' +
+      '<td>' + (tradeIcons[e.trade]||'') + ' ' + (e.tradeTitle||e.trade) + '</td>' +
+      '<td style="color:var(--tx2)">' + (e.client||'—') + '</td>' +
+      '<td style="font-weight:500">' + fmtd(e.grand||0) + '</td>' +
+      '<td style="color:var(--tx2)">' + (e.date||'—') + '</td>' +
+      '<td><div style="display:flex;gap:4px">' +
+        '<button class="btn btn-sm btn-p" onclick="loadSavedTradeEst(\'' + e.id + '\')">Load</button>' +
+        '<button class="btn btn-sm btn-r" onclick="deleteSavedTradeEst(\'' + e.id + '\')">&#215;</button>' +
+      '</div></td></tr>';
+  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--tx3)">No saved trade estimates yet</td></tr>';
+  document.getElementById('mo-saved-te').classList.add('open');
+}
+
+function loadSavedTradeEst(id){
+  var est = savedTradeEsts.find(function(e){return e.id===id;});
+  if(!est) return;
+  selectTrade(est.trade);
+  document.getElementById('te-client').value = est.client || '';
+  document.getElementById('te-markup').value = est.markup || 15;
+  document.getElementById('te-notes').value = est.notes || '';
+  if(est.projId) document.getElementById('te-proj').value = est.projId;
+  // Restore inputs
+  if(est.inputs){
+    Object.entries(est.inputs).forEach(function(entry){
+      var k = entry[0], v = entry[1];
+      var q = document.getElementById('tq-'+k);
+      var r = document.getElementById('tr-'+k);
+      if(q) q.value = v.qty;
+      if(r) r.value = v.rate;
+    });
+  }
+  calcTradeEst();
+  closeM('mo-saved-te');
+}
+
+function deleteSavedTradeEst(id){
+  if(!confirm('Delete this estimate?')) return;
+  savedTradeEsts = savedTradeEsts.filter(function(e){return e.id!==id;});
+  localStorage.setItem('hbp2_tradeEsts', JSON.stringify(savedTradeEsts));
+  openSavedTradeEsts();
+}
+
+function printTradeEst(){
+  var trade = TRADES[currentTrade];
+  var lines = window._lastTradeLines || [];
+  var grand = window._lastTradeGrand || 0;
+  var sub = window._lastTradeSub || 0;
+  var mk = +document.getElementById('te-markup').value || 15;
+  var client = document.getElementById('te-client').value || '—';
+  var notes = document.getElementById('te-notes').value || '';
+  var w = window.open('', '_blank');
+  w.document.write('<!DOCTYPE html><html><head><title>' + trade.title + '</title>' +
+    '<style>body{font-family:-apple-system,sans-serif;padding:50px;font-size:13px;color:#1a1916}' +
+    'h1{font-size:20px;font-style:italic;font-family:Georgia,serif;margin-bottom:4px}' +
+    'table{width:100%;border-collapse:collapse;margin-top:20px}' +
+    'th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#888;padding:8px;border-bottom:2px solid #eee}' +
+    'td{padding:8px;border-bottom:1px solid #eee}.right{text-align:right}.total{font-size:16px;font-weight:700;color:#1a4d7c}' +
+    '</style></head><body>' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:32px">' +
+    '<div><div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Home Builders Plus</div>' +
+    '<h1>' + trade.title + '</h1>' +
+    '<div style="color:#888;font-size:12px">9515 Marion Martin Road · Charlestown, IN 47111 · (502) 643-4855</div></div>' +
+    '<div style="text-align:right;font-size:12px;color:#888"><div>Date: ' + tod() + '</div><div>Client: ' + client + '</div></div></div>' +
+    '<table><thead><tr><th>Item</th><th class="right">Qty</th><th>Unit</th><th class="right">Rate</th><th class="right">Total</th></tr></thead><tbody>' +
+    lines.map(function(l){
+      return '<tr><td>' + l.label + '</td><td class="right">' + l.qty.toLocaleString() + '</td><td>' + l.unit + '</td><td class="right">$' + l.rate.toFixed(2) + '</td><td class="right">$' + l.total.toFixed(2) + '</td></tr>';
+    }).join('') +
+    '</tbody><tfoot>' +
+    '<tr><td colspan="4" class="right" style="padding-top:12px">Subtotal</td><td class="right" style="padding-top:12px">$' + sub.toFixed(2) + '</td></tr>' +
+    '<tr><td colspan="4" class="right">+ ' + mk + '% Markup</td><td class="right">$' + (sub*mk/100).toFixed(2) + '</td></tr>' +
+    '<tr><td colspan="4" class="right total">Total Bid</td><td class="right total">$' + grand.toFixed(2) + '</td></tr>' +
+    '</tfoot></table>' +
+    (notes ? '<div style="margin-top:24px;font-size:12px;color:#888"><strong>Notes:</strong> ' + notes + '</div>' : '') +
+    '</body></html>');
+  w.document.close();
+  w.print();
+}
+
+// Wire tradeest into nav map and populate project select when page loads
+var _origNav = nav;
+nav = function(page){
+  _origNav(page);
+  if(page === 'tradeest'){
+    // Populate project select
+    var sel = document.getElementById('te-proj');
+    if(sel){
+      var cur = sel.value;
+      sel.innerHTML = '<option value="">-- Standalone --</option>' +
+        projects.map(function(p){return '<option value="' + p.id + '">' + p.name + '</option>';}).join('');
+      sel.value = cur;
+    }
+    // Init first trade
+    if(!document.getElementById('te-inputs').innerHTML){
+      selectTrade('concrete');
+    }
+  }
+};
 
 </script>
 </body>
