@@ -1594,6 +1594,7 @@ if(typeof firebase !== 'undefined' && !window._fbInit){
 // -- AUTO-INIT (no login required) ---------------------------------------------
 window.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){
+    // Firebase-first: load from Firebase if available, seed only if Firebase is empty
     try{init();}catch(e){console.error(e);}
     if(typeof startSync==='function')setTimeout(startSync,1000);
   },50);
@@ -1689,22 +1690,35 @@ function init(){
   document.getElementById('co-dt').value=tod();
   document.getElementById('comm-dt').value=tod();
   document.getElementById('prop-dt').value=tod();
-  // Only seed if localStorage AND Firebase are both empty
-  if(!projects.length){
-    if(window._db){
-      window._db.collection('hbp_data').doc('proj').get().then(function(doc){
-        if(!doc.exists||!doc.data()||doc.data().d==='[]'||doc.data().d===''){
+  // Always check Firebase first - Firebase is the single source of truth
+  // localStorage is just a cache. Firebase always wins.
+  if(window._db){
+    window._db.collection('hbp_data').doc('proj').get().then(function(doc){
+      if(!doc.exists||!doc.data()||doc.data().d==='[]'||doc.data().d===''){
+        // Firebase empty - only seed if localStorage is also empty
+        if(!projects.length){
+          console.log('No data anywhere - seeding fresh 2026 data...');
           seed(); renderDash(); popSelects();
-        } else {
-          try{
-            projects=JSON.parse(doc.data().d);
-            localStorage.setItem('hbp2_proj',doc.data().d);
-            renderDash(); popSelects();
-          }catch(e){}
         }
-      }).catch(function(){ /* offline - show empty state */ });
-    }
-    // If _db not ready yet, startSync will load data when it connects
+        // Otherwise keep whatever is in localStorage (offline mode)
+      } else {
+        // Firebase has data - always use it, overwrite localStorage cache
+        try{
+          var fbProjects=JSON.parse(doc.data().d);
+          projects=fbProjects;
+          localStorage.setItem('hbp2_proj',doc.data().d);
+          renderDash(); popSelects();
+          console.log('Loaded '+projects.length+' projects from Firebase');
+        }catch(e){ console.warn('Error loading Firebase data:',e); }
+      }
+    }).catch(function(){
+      // Offline - use localStorage as fallback, don't seed
+      console.log('Offline - using cached data');
+      renderDash();
+    });
+  } else {
+    // No Firebase connection yet - startSync will handle it when ready
+    if(!projects.length){ seed(); renderDash(); popSelects(); }
   }
 }
 
